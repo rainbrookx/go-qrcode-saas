@@ -63,6 +63,7 @@
 
 ### 3. 表单功能
 
+- 拖拽表单设计器：**alibaba/x-render**（`FormRender` + `FormBuilder`），嵌入应用使用，不独立部署。
 - 基于 Ant Design，支持字段类型：单行文本、多行文本、单选、多选、下拉、日期、文件上传、评分。
 - 支持导出 **CSV / Excel**。
 - **只支持匿名提交**，提交者无需登录。
@@ -86,6 +87,16 @@
 - 注册方式：**邮箱 + 密码**。
 - 支持邮箱验证登录、找回密码。
 - 用户配额：**100 个活码**（活码 = 网址跳转码 / 文章 / 表单）。
+
+#### JWT 认证机制
+
+- 签名算法：**HS256**，密钥从环境变量 `JWT_SECRET` 读取。
+- **Access Token**：有效期 **24 小时**（86400 秒）。
+- **Refresh Token**：有效期 **3 天**（259200 秒），自登录时起算。
+- 登录时同时签发 Access Token 与 Refresh Token。
+- Access Token 过期后，前端使用 Refresh Token 调用续签接口换取新的 Access Token + Refresh Token（双 token 均刷新，旧 Refresh Token 立即失效）。
+- Refresh Token 过期后必须重新登录。
+- 修改密码不会使已签发的 Token 失效（无 Token 黑名单机制，MVP 阶段简化）。
 
 ### 7. 短链接规范
 
