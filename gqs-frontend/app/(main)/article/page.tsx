@@ -61,43 +61,43 @@ export default function ArticlePage() {
         <Form.Item name="title" rules={[{ required: true, max: 200, message: "请输入标题（最多200字符）" }]}>
           <Input placeholder="文章标题" />
         </Form.Item>
+
+        <ArticleEditor content={content} onChange={setContent} />
+
+        <div
+          style={{
+            marginTop: 8,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            fontSize: 12,
+            color: "#8c8c8c",
+          }}
+        >
+          <span>{charCount} / 50,000 字</span>
+        </div>
+
+        <div style={{ marginTop: 16 }}>
+          <AttachmentUpload value={attachments} onChange={setAttachments} />
+        </div>
+
+        <div
+          style={{
+            marginTop: 16,
+            display: "flex",
+            gap: 16,
+            alignItems: "flex-end",
+            flexWrap: "wrap",
+          }}
+        >
+          <Form.Item name="expires_in" label="有效期" style={{ marginBottom: 0, minWidth: 180 }}>
+            <Select options={expiryOptions} />
+          </Form.Item>
+          <Button type="primary" loading={loading} onClick={() => form.submit()} style={{ minHeight: 32 }}>
+            生成二维码并发布
+          </Button>
+        </div>
       </Form>
-
-      <ArticleEditor content={content} onChange={setContent} />
-
-      <div
-        style={{
-          marginTop: 8,
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          fontSize: 12,
-          color: "#8c8c8c",
-        }}
-      >
-        <span>{charCount} / 50,000 字</span>
-      </div>
-
-      <div style={{ marginTop: 16 }}>
-        <AttachmentUpload value={attachments} onChange={setAttachments} />
-      </div>
-
-      <div
-        style={{
-          marginTop: 16,
-          display: "flex",
-          gap: 16,
-          alignItems: "flex-end",
-          flexWrap: "wrap",
-        }}
-      >
-        <Form.Item name="expires_in" label="有效期" style={{ marginBottom: 0, minWidth: 180 }}>
-          <Select options={expiryOptions} />
-        </Form.Item>
-        <Button type="primary" loading={loading} onClick={() => form.submit()} style={{ minHeight: 32 }}>
-          生成二维码并发布
-        </Button>
-      </div>
 
       {result && (
         <div style={{ marginTop: 32 }}>
