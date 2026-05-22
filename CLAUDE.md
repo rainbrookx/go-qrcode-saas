@@ -2,11 +2,9 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Repo state
+## Source of truth
 
-Early skeleton. `gqs-backend/` — Go module with `go.mod` only, no code yet. `gqs-frontend/` — scaffolded Next.js App Router with default starter page, no custom code yet. Architecture is being established as features land — when you make a load-bearing structural choice, update this file so it stays accurate.
-
-Design docs in `doc/` are the source of truth for product requirements and architecture decisions:
+Design docs in `doc/` define product requirements and API behavior:
 - `doc/SRS.md` — product requirements, feature specs, business rules
 - `doc/API.md` — REST API contract, error codes, request/response schemas
 - `doc/UI_STYLE_GUIDE.md` — design tokens, layout, component conventions
@@ -15,30 +13,18 @@ Design docs in `doc/` are the source of truth for product requirements and archi
 ## Hard constraints
 
 - **Never modify** `gqs-backend/go.mod`, `gqs-backend/go.sum`, `gqs-frontend/package.json`, or `gqs-frontend/pnpm-lock.yaml`.
-- **Never run** dependency-mutating commands: `pnpm install`, `pnpm add`, `npm i`, `go get`, `go mod tidy`, etc. The user installs all deps manually.
-- When a new dep is needed, reply with both (a) name + one-line reason, and (b) the exact install command (e.g. `pnpm add foo@^1.2`, `go get github.com/x/y`) for the user to run.
-- **Database is read-only**: `SELECT` / schema inspection is fine; no writes, no `AutoMigrate` against the live DB, no running seeds. Emit migration files / SQL for the user to apply.
-- **Never hardcode secrets**. Use env vars: `JWT_SECRET`, `DB_DSN`, `MINIO_*`, `SMTP_*`.
+- **Never run** dependency-mutating commands: `pnpm install`, `pnpm add`, `npm i`, `go get`, `go mod tidy`, etc. The user installs dependencies manually.
+- When a new dependency is needed, reply with both (a) name + one-line reason, and (b) the exact install command for the user to run.
+- **Database is read-only** for Claude-run operations: schema inspection and `SELECT` are fine; no writes, live `AutoMigrate`, or seeds. Emit migration files / SQL for the user to apply.
+- **Never hardcode secrets**. Use env vars such as `JWT_SECRET`, `DB_DSN`, `MINIO_*`, `SMTP_*`, `BASE_URL`.
 
-## Two independent projects, no root workspace
+## Repository layout
 
-`gqs-backend/` and `gqs-frontend/` are separate — no Makefile, no Docker, no root tool ties them together. Run commands from inside the relevant subdirectory.
+`gqs-backend/` and `gqs-frontend/` are independent projects. There is no root workspace, Makefile, or Docker setup tying them together. Run commands from inside the relevant project directory.
 
-### Backend (`gqs-backend/`) — Go 1.26.2
+## Backend (`gqs-backend/`) — Go 1.26.2
 
-Module: `github.com/rainbrookx/go-qrcode-saas`. See `doc/TECH_STACK.md` for the full dependency list.
-
-Standard layout: `cmd/server/main.go` entrypoint, `internal/` for app-private packages, `pkg/` only for code intended for external import.
-
-Key internal packages:
-- `internal/model/` — GORM models
-- `internal/repository/` — data access layer
-- `internal/handler/` — Gin route handlers (grouped by domain: auth, urldyn, article, form, upload)
-- `internal/middleware/` — auth (JWT validation), CORS, rate limiting
-- `internal/auth/` — JWT claims, token issuers
-- `internal/shortcode/` — Base62 short code generation (8 chars, shuffled, non-sequential)
-
-Emit schema changes as SQL migration files — do not call `AutoMigrate` from agent-run code.
+Module: `github.com/rainbrookx/go-qrcode-saas`.
 
 Commands:
 ```
@@ -48,80 +34,80 @@ go test ./...
 go test -run TestName ./internal/...   # single test
 ```
 
-### Frontend (`gqs-frontend/`)
+Architecture:
+- `cmd/server/main.go` wires config, MySQL, repositories, handlers, middleware, and Gin routes.
+- `internal/config/` loads `.env` plus environment variables with Viper.
+- `internal/database/` initializes GORM MySQL; schema changes should be SQL/migrations, not runtime `AutoMigrate`.
+- `internal/model/` holds GORM models for users, refresh tokens, email codes, URL dynamic codes, articles, attachments, forms, submissions, and access stats.
+- `internal/repository/` is the data access layer. Keep DB queries here rather than in handlers.
+- `internal/handler/` contains Gin handlers by domain: auth, dynamic URL, article, form, upload, public article/form, redirects, code listing.
+- `internal/middleware/` handles CORS and JWT auth; authenticated handlers read `user_id` from Gin context.
+- `internal/auth/` handles password hashing, JWT issuing/parsing, and email sending.
+- `internal/shortcode/` generates fixed 8-character non-sequential short codes.
+- `internal/storage/` wraps MinIO upload and presigned URL behavior.
+- `internal/response/` defines the API envelope `{ "code": 0, "message": "ok", "data": ... }` and error codes.
 
-Next.js 16.2.6 App Router, React 19.2.4, TypeScript 5, Tailwind v4 via `@tailwindcss/postcss` (no `tailwind.config.js` — v3 patterns do not apply). Package manager is **pnpm** — never use npm/yarn.
+Routing pattern:
+- API routes live under `/api/v1`.
+- Public auth: `/api/v1/auth/register`, `/login`, `/verify-code`, `/reset-password`, `/refresh`.
+- Protected auth/user: `/api/v1/auth/change-password`, `/auth/me`, `/user/quota`.
+- Protected CRUD domains: `/api/v1/urldyn`, `/article`, `/form`, `/upload`, `/codes`.
+- Public short links use no API prefix: `/u/:code`, `/a/:code`, `/f/:code`.
+- Public read/submit handlers exist for article/form (`/public/article/:code`, `/public/form/:code`, `/public/form/:code/submit`) and should stay unauthenticated.
 
-- TS path alias `@/*` → `./*`, rooted at `gqs-frontend/`. **There is no `src/` directory.**
-- ESLint uses **flat config** (`eslint.config.mjs`) with `eslint-config-next/core-web-vitals` + `/typescript`. Do not add `.eslintrc*`.
-- No standalone typecheck script — use `pnpm build`, or `pnpm exec tsc --noEmit` for a quick check.
-- `pnpm-workspace.yaml` exists only to approve `sharp` / `unrs-resolver` builds — leave it alone.
-- See `doc/UI_STYLE_GUIDE.md` for design tokens, spacing, component conventions — apply these when building UI.
+## Frontend (`gqs-frontend/`)
+
+Next.js 16.2.6 App Router, React 19.2.4, TypeScript 5, Tailwind v4 via `@tailwindcss/postcss`, Ant Design 6, Zustand, Axios, TipTap, form-render, qrcode.react, jsqr. Package manager is **pnpm**; never use npm/yarn.
 
 Commands:
 ```
-pnpm dev      # dev server
-pnpm build    # production build (also typechecks)
-pnpm start    # serve production build
-pnpm lint     # ESLint
+pnpm dev                         # dev server
+pnpm build                       # production build and typecheck
+pnpm start                       # serve production build
+pnpm lint                        # ESLint
+pnpm exec tsc --noEmit           # quick typecheck if needed
 ```
 
-## Verification before declaring a task done
+Architecture:
+- App Router files live directly under `app/`; there is no `src/` directory.
+- TS path alias `@/*` maps to `./*`, rooted at `gqs-frontend/`.
+- Main authenticated/public tool pages are grouped under `app/(main)/` and share `app/(main)/layout.tsx` with `Header` and `Footer`.
+- Public render pages for short links are `app/a/[code]/page.tsx` and `app/f/[code]/page.tsx`.
+- Auth pages are `app/login/page.tsx` and `app/forgot-password/page.tsx`.
+- Shared UI lives in `components/` (`QRPreview`, `QRDecoder`, `UrlDynForm`, `ArticleEditor`, `AttachmentUpload`, `FormBuilder`, `CodeList`, layout components).
+- `lib/api.ts` owns the Axios client, `/api/v1` base path, bearer token injection, and refresh-token retry flow.
+- `lib/store.ts` owns Zustand auth state and calls auth APIs.
+- ESLint uses flat config (`eslint.config.mjs`); do not add `.eslintrc*`.
+- Tailwind v4 does not use `tailwind.config.js`; also follow `doc/UI_STYLE_GUIDE.md` when changing UI.
 
-- Frontend: `pnpm lint` then `pnpm build`.
-- Backend (once code exists): `go vet ./...` then `go test ./...`.
+## Product rules to preserve
 
-## Product summary
+Open-source QR-code SaaS — no paid features and no admin backend in MVP.
 
-Open-source QR-code SaaS — **no paid features**. No admin backend in the MVP. Six tabs (full details in `doc/SRS.md`):
-
-| Tab | Code | Login | Persisted |
+| Tab | Code | Login | Persistence |
 |---|---|---|---|
-| 文本 | `text` | No | No — frontend-only QR generation, never stored |
-| 网址静态码 | `url` | No | No — same, with `http(s)://` placeholder |
-| 网址跳转码 | `urldyn` | Yes | Yes — backend short link `/u/<code>`, editable, stats |
-| 文章 | `article` | Yes | Yes — short link `/a/<code>`, TipTap rich text, MinIO attachments, stats |
-| 表单 | `form` | Yes | Yes — short link `/f/<code>`, drag-built form, anonymous submissions, stats |
-| 解码 | `deqr` | No | No — frontend-only QR decode, never stored |
+| 文本 | `text` | No | Frontend-only QR generation, never stored |
+| 网址静态码 | `url` | No | Frontend-only QR generation, never stored |
+| 网址跳转码 | `urldyn` | Yes | Backend short link `/u/<code>`, editable, stats |
+| 文章 | `article` | Yes | Backend short link `/a/<code>`, TipTap content, MinIO attachments, stats |
+| 表单 | `form` | Yes | Backend short link `/f/<code>`, anonymous submissions, stats |
+| 解码 | `deqr` | No | Frontend-only QR decode, never stored |
 
-### Key business rules
+Key business rules:
+- `text`, `url`, and `deqr` must not call persistence APIs or touch the database.
+- User quota is 100 active codes total across `urldyn`, `article`, and `form`.
+- Short codes are Base62-like, fixed 8 chars, lowercase/non-confusing/non-sequential; banned chars include `0 O o 1 I l`, punctuation listed in SRS, whitespace, CJK, emoji, and backslash.
+- Short-link validity defaults to 30 days and is configurable from 1–60 days.
+- Updating `expires_in` recalculates from current time rather than stacking on the original expiry.
+- Articles cap body content at 50,000 chars; video + file attachments are at most 1 total; block `.exe`, `.bat`, `.js`, `.php`, `.py`.
+- Forms cap at 50 fields; submissions are anonymous; public submit is rate-limited; export supports CSV and xlsx.
+- QR output is standard-style PNG at 200×200px display with no style customization.
 
-- **`text` / `url` / `deqr` are purely frontend** — never hit the database, even for logged-in users.
-- User quota: **100 active codes** total (urldyn + article + form).
-- Short codes: Base62, **8 chars fixed**, all lowercase, shuffled (non-sequential). Banned chars: `0 O o 1 I l`, `_ - ~ ! @ # $ % ^ & * ( )`, whitespace, CJK, emoji, backslash. See `doc/SRS.md` §7.
-- Short links default validity **30 days**, user-configurable **1–60 days**.
-- `expires_in` on update recalculates from current time, not stacked on original.
-- Article: max 50,000 chars body, attachments to MinIO. Video + file attachments: at most 1 total. Block `.exe` `.bat` `.js` `.php` `.py`.
-- Form: max 50 fields, anonymous submissions only, rate limit 1/10s per IP. Export as CSV or xlsx.
-- QR output: standard-style PNG, 200×200px display, **no style customization**.
-- No save/history for text/url/deqr — one-shot only.
+## Verification before declaring work done
 
-### Auth (full spec in `doc/API.md` §1, `doc/SRS.md` §6)
-
-- Register/login by email + password, or email verification code.
-- JWT HS256, secret from `JWT_SECRET` env.
-- **Access Token**: 24h expiry. **Refresh Token**: 3-day expiry from login, single-use, rotated on each refresh. Old refresh token invalidated immediately.
-- Refresh token storage: MySQL `refresh_tokens` table.
-- Password change does not invalidate existing tokens (MVP simplification).
-- API response envelope: `{ "code": 0, "message": "ok", "data": { } }`. Error code ranges in `doc/API.md`.
-
-### API routing pattern
-
-Authenticated CRUD routes under `/api/v1/`:
-- `/auth/*` — register, login, refresh, reset/change password, me
-- `/urldyn`, `/urldyn/:id` — URL redirect codes
-- `/article`, `/article/:id` — articles
-- `/form`, `/form/:id` — forms, + `/form/:id/submissions`, `/form/:id/submissions/export`
-- `/upload` — file upload to MinIO
-- `/codes` — cross-type active codes list
-- `/user/quota` — quota check
-
-Public short-link routes (no `/api/v1` prefix):
-- `GET /u/:code` — redirect to target URL
-- `GET /a/:code` — article page
-- `GET /f/:code` — form fill page
-- `GET /public/article/:code`, `GET /public/form/:code`, `POST /public/form/:code/submit`
+- Frontend changes: run `pnpm lint` then `pnpm build` from `gqs-frontend/`. For UI changes, also run the app and check the flow in a browser.
+- Backend changes: run `go vet ./...` then `go test ./...` from `gqs-backend/`.
 
 ## Environment
 
-Windows host, bash shell available. Use forward slashes in paths and Unix-style commands (`/dev/null`, not `NUL`). Quote paths containing spaces.
+Windows host with bash available. Use forward slashes and Unix-style shell syntax (`/dev/null`, not `NUL`). Quote paths containing spaces.
