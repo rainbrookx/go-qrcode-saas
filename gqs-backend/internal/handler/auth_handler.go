@@ -17,11 +17,14 @@ import (
 )
 
 type AuthHandler struct {
-	UserRepo        *repository.UserRepo
+	UserRepo         *repository.UserRepo
 	RefreshTokenRepo *repository.RefreshTokenRepo
-	EmailCodeRepo   *repository.EmailCodeRepo
-	JWTSecret       string
-	Mailer          *auth.Mailer
+	EmailCodeRepo    *repository.EmailCodeRepo
+	UrldynRepo       *repository.UrldynRepo
+	ArticleRepo      *repository.ArticleRepo
+	FormRepo         *repository.FormRepo
+	JWTSecret        string
+	Mailer           *auth.Mailer
 }
 
 var passwordRule = regexp.MustCompile(`^[a-zA-Z\d!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,64}$`)
@@ -345,17 +348,19 @@ func (h *AuthHandler) Me(c *gin.Context) {
 func (h *AuthHandler) Quota(c *gin.Context) {
 	userID := c.GetUint64("user_id")
 
-	_, _ = h.UserRepo.FindByID(userID)
+	urldynCount, _ := h.UrldynRepo.CountActiveByUser(userID)
+	articleCount, _ := h.ArticleRepo.CountActiveByUser(userID)
+	formCount, _ := h.FormRepo.CountActiveByUser(userID)
+	used := int(urldynCount + articleCount + formCount)
 
-	// TODO: count from urldyn + article + form tables, will wire in later phases
 	response.Success(c, gin.H{
 		"total":     100,
-		"used":      0,
-		"remaining": 100,
+		"used":      used,
+		"remaining": 100 - used,
 		"breakdown": gin.H{
-			"urldyn":  0,
-			"article": 0,
-			"form":    0,
+			"urldyn":  urldynCount,
+			"article": articleCount,
+			"form":    formCount,
 		},
 	})
 }

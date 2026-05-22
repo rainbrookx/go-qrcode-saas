@@ -1,7 +1,6 @@
 "use client";
 
 import { Upload, message } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
 import api from "@/lib/api";
 
 const maxSizes: Record<string, number> = {
