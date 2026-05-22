@@ -5,18 +5,55 @@ const api = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
-let accessToken: string | null = null;
-let refreshToken: string | null = null;
+const TOKEN_STORAGE_KEY = "gqs_tokens";
+
+interface StoredTokens {
+  access_token: string;
+  refresh_token: string;
+}
+
+function readStoredTokens(): StoredTokens | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const stored = window.localStorage.getItem(TOKEN_STORAGE_KEY);
+  if (!stored) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(stored) as StoredTokens;
+  } catch {
+    window.localStorage.removeItem(TOKEN_STORAGE_KEY);
+    return null;
+  }
+}
+
+const storedTokens = readStoredTokens();
+let accessToken: string | null = storedTokens?.access_token ?? null;
+let refreshToken: string | null = storedTokens?.refresh_token ?? null;
 let refreshPromise: Promise<{ access_token: string; refresh_token: string }> | null = null;
 
 export function setTokens(access: string, refresh: string) {
   accessToken = access;
   refreshToken = refresh;
+
+  if (typeof window !== "undefined") {
+    window.localStorage.setItem(
+      TOKEN_STORAGE_KEY,
+      JSON.stringify({ access_token: access, refresh_token: refresh })
+    );
+  }
 }
 
 export function clearTokens() {
   accessToken = null;
   refreshToken = null;
+
+  if (typeof window !== "undefined") {
+    window.localStorage.removeItem(TOKEN_STORAGE_KEY);
+  }
 }
 
 api.interceptors.request.use((config) => {
