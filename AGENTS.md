@@ -16,6 +16,8 @@ Repo state: early skeleton. `gqs-backend/` is an empty Go module; `gqs-frontend/
 ## Backend (`gqs-backend/`) — intended direction
 - **Go 1.26.2** (recent; verify any stdlib/API assumptions against this version, not older Go).
 - Web framework: **Gin**. Use standard project layout: `cmd/server/main.go` for the entrypoint, `internal/` for app-private packages, `pkg/` only for code intended for external import.
+- Database: **MySQL** accessed via **GORM** (`gorm.io/gorm` + `gorm.io/driver/mysql`). Define models under `internal/model/`, repositories/queries under `internal/repository/`. Emit schema changes as SQL migration files for the user to apply — do NOT call `AutoMigrate` against the live DB from agent-run code without explicit instruction.
+- Auth: **JWT** (intended lib: `github.com/golang-jwt/jwt/v5`). Implement as Gin middleware under `internal/middleware/auth.go`; sign with HS256 using a secret from env (`JWT_SECRET`); put claims in `internal/auth/`. Never hardcode secrets.
 - Commands once code exists: `go build ./...`, `go vet ./...`, `go test ./...`. Single test: `go test -run TestName ./internal/...`.
 - Never run `go mod tidy` (mutates `go.mod` and creates `go.sum`).
 
