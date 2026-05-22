@@ -95,7 +95,7 @@ export default function FormPage() {
           </Form>
 
           {result && (
-            <Card bordered style={{ borderRadius: 8 }}>
+            <Card variant="outlined" style={{ borderRadius: 8 }}>
               <QRPreview value={result.short_url} copyText={result.short_url} />
               <p style={{ marginTop: 12, textAlign: "center", fontSize: 14, color: "#434343" }}>
                 短链接：<strong style={{ color: "#1677FF" }}>{result.short_url}</strong>

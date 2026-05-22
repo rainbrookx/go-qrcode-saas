@@ -23,7 +23,7 @@ export default function UrldynPage() {
         <Alert
           type="info"
           showIcon
-          message="登录后可创建活码并修改目标链接"
+          title="登录后可创建活码并修改目标链接"
           action={
             <a href="/login" style={{ whiteSpace: "nowrap" }}>
               去登录

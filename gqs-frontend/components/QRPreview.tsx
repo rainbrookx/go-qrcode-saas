@@ -37,7 +37,7 @@ export default function QRPreview({ value, size = 200, showActions = true, copyT
 
   return (
     <Card
-      bordered
+      variant="outlined"
       style={{ borderRadius: 8, textAlign: "center" }}
       styles={{ body: { padding: 24 } }}
     >
