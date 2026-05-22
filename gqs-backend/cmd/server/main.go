@@ -49,6 +49,15 @@ func main() {
 		BaseURL:        cfg.BaseURL,
 	}
 
+	// Codes handler
+	codesHandler := &handler.CodesHandler{
+		UrldynRepo:     urldynRepo,
+		ArticleRepo:    articleRepo,
+		FormRepo:       formRepo,
+		AccessStatRepo: accessStatRepo,
+		BaseURL:        cfg.BaseURL,
+	}
+
 	// Redirect handler
 	redirectHandler := &handler.RedirectHandler{
 		UrldynRepo:     urldynRepo,
@@ -93,6 +102,9 @@ func main() {
 		urldynGroup.PUT("/:id", urldynHandler.Update)
 		urldynGroup.DELETE("/:id", urldynHandler.Delete)
 	}
+
+	// Codes routes (protected)
+	api.GET("/codes", middleware.Auth(cfg.JWTSecret), codesHandler.List)
 
 	// Public short-link redirects
 	r.GET("/u/:code", redirectHandler.RedirectURL)
