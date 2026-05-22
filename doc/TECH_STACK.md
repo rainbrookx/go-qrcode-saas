@@ -14,7 +14,7 @@
 | 密码哈希 | golang.org/x/crypto/bcrypt | 用户注册/登录密码哈希 |
 | 请求校验 | go-playground/validator | Gin binding 内置，基于 struct tag 声明校验规则 |
 | CORS | gin-contrib/cors | 跨域中间件 |
-| 限流 | gin-contrib/limiter | 令牌桶/漏桶，按 IP / 路由限流 |
+| 限流 | ulule/limiter | 令牌桶/漏桶，按 IP / 路由限流，自带 Gin 中间件 driver |
 | 日志 | log/slog | Go 1.21+ 标准库结构化日志 |
 | 配置管理 | Viper | 支持环境变量、YAML、JSON、热重载 |
 | 二维码生成 | skip2/go-qrcode | 纯 Go，PNG 输出 |
@@ -38,7 +38,7 @@ go get github.com/golang-jwt/jwt/v5
 go get golang.org/x/crypto
 go get github.com/go-playground/validator/v10
 go get github.com/gin-contrib/cors
-go get github.com/gin-contrib/limiter
+go get github.com/ulule/limiter/v3
 go get github.com/spf13/viper
 go get github.com/skip2/go-qrcode
 go get github.com/xuri/excelize/v2
