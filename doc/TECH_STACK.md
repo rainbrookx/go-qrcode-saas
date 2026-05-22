@@ -25,6 +25,26 @@
 | 邮件发送 | net/smtp | 标准 SMTP 协议，兼容任何邮箱服务商 |
 | 包管理 | Go Modules | 模块名 `github.com/rainbrookx/go-qrcode-saas` |
 
+### 依赖安装命令
+
+在 `gqs-backend/` 目录下执行：
+
+```bash
+go get github.com/gin-gonic/gin
+go get gorm.io/gorm
+go get gorm.io/driver/mysql
+go get github.com/minio/minio-go/v7
+go get github.com/golang-jwt/jwt/v5
+go get golang.org/x/crypto
+go get github.com/go-playground/validator/v10
+go get github.com/gin-contrib/cors
+go get github.com/gin-contrib/limiter
+go get github.com/spf13/viper
+go get github.com/skip2/go-qrcode
+go get github.com/xuri/excelize/v2
+go get github.com/microcosm-cc/bluemonday
+```
+
 ---
 
 ## 二、前端（Next.js）
@@ -44,6 +64,22 @@
 | XSS 清洗 | DOMPurify | 文章内容前端渲染安全 |
 | 状态管理 | zustand | 全局认证状态、用户信息 |
 | 包管理 | pnpm | |
+
+### 依赖安装命令
+
+在 `gqs-frontend/` 目录下执行：
+
+```bash
+pnpm add antd @ant-design/icons
+pnpm add @tiptap/react @tiptap/starter-kit @tiptap/extension-image @tiptap/extension-link @tiptap/extension-placeholder @tiptap/extension-text-align @tiptap/extension-underline @tiptap/extension-color @tiptap/extension-text-style @tiptap/extension-highlight
+pnpm add xrender form-render
+pnpm add axios
+pnpm add qrcode.react
+pnpm add jsqr
+pnpm add dompurify
+pnpm add zustand
+pnpm add -D @types/dompurify
+```
 
 ---
 
