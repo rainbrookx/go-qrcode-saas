@@ -25,6 +25,10 @@ func main() {
 	userRepo := repository.NewUserRepo(db)
 	refreshTokenRepo := repository.NewRefreshTokenRepo(db)
 	emailCodeRepo := repository.NewEmailCodeRepo(db)
+	urldynRepo := repository.NewUrldynRepo(db)
+	accessStatRepo := repository.NewAccessStatRepo(db)
+	articleRepo := repository.NewArticleRepo(db)
+	formRepo := repository.NewFormRepo(db)
 
 	// Auth handler
 	mailer := auth.NewMailer(cfg.SMTPHost, cfg.SMTPPort, cfg.SMTPUser, cfg.SMTPPass, cfg.SMTPFrom)
@@ -36,10 +40,29 @@ func main() {
 		Mailer:           mailer,
 	}
 
+	// Urldyn handler
+	urldynHandler := &handler.UrldynHandler{
+		UrldynRepo:     urldynRepo,
+		AccessStatRepo: accessStatRepo,
+		ArticleRepo:    articleRepo,
+		FormRepo:       formRepo,
+		BaseURL:        cfg.BaseURL,
+	}
+
+	// Redirect handler
+	redirectHandler := &handler.RedirectHandler{
+		UrldynRepo:     urldynRepo,
+		ArticleRepo:    articleRepo,
+		FormRepo:       formRepo,
+		AccessStatRepo: accessStatRepo,
+		BaseURL:        cfg.BaseURL,
+	}
+
 	r := gin.Default()
 	r.Use(middleware.CORS())
 
 	api := r.Group("/api/v1")
+
 	// Public auth routes
 	authGroup := api.Group("/auth")
 	{
@@ -60,6 +83,21 @@ func main() {
 	{
 		userGroup.GET("/quota", authHandler.Quota)
 	}
+
+	// Urldyn routes (protected)
+	urldynGroup := api.Group("/urldyn").Use(middleware.Auth(cfg.JWTSecret))
+	{
+		urldynGroup.POST("", urldynHandler.Create)
+		urldynGroup.GET("", urldynHandler.List)
+		urldynGroup.GET("/:id", urldynHandler.Detail)
+		urldynGroup.PUT("/:id", urldynHandler.Update)
+		urldynGroup.DELETE("/:id", urldynHandler.Delete)
+	}
+
+	// Public short-link redirects
+	r.GET("/u/:code", redirectHandler.RedirectURL)
+	r.GET("/a/:code", redirectHandler.RedirectArticle)
+	r.GET("/f/:code", redirectHandler.RedirectForm)
 
 	api.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{"status": "ok"})
