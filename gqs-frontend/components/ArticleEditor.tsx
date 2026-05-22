@@ -65,7 +65,6 @@ export default function ArticleEditor({
       Underline,
       Highlight,
     ],
-    content: content || "",
     onUpdate: ({ editor }) => {
       onChange?.(editor.getHTML());
     },
@@ -197,8 +196,10 @@ export default function ArticleEditor({
       </div>
       <div
         style={{
-          padding: "16px",
-          minHeight: 400,
+          height: 400,
+          overflowY: "auto",
+          background: "#fff",
+          padding: "8px 12px",
           fontSize: 14,
           lineHeight: 1.8,
           color: "#434343",
