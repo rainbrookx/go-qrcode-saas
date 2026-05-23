@@ -35,7 +35,7 @@ export default function TextPage() {
       <div style={{ flex: "1 1 300px", minWidth: 280 }}>
         <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 16, color: "#141414" }}>预览</h3>
         {qrValue ? (
-          <QRPreview value={qrValue} />
+          <QRPreview value={qrValue} copyText={qrValue} />
         ) : (
           <div style={{
             height: 280, display: "flex", alignItems: "center", justifyContent: "center",
