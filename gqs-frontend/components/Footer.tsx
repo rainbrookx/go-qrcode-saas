@@ -11,8 +11,8 @@ export default function Footer() {
       }}
     >
       QR Code SaaS — 开源二维码工具 |{" "}
-      <a href="https://github.com" target="_blank" rel="noopener noreferrer" style={{ color: "#1677FF" }}>
-        GitHub
+      <a href="https://github.com/rainbrookx/go-qrcode-saas" target="_blank" rel="noopener noreferrer" style={{ color: "#1677FF" }}>
+        GitHub | rainbrookx/go-qrcode-saas
       </a>
     </footer>
   );
