@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Tabs, Form, Input, Button, message, Card } from "antd";
+import { Tabs, Form, Input, Button, message, Card, Tooltip } from "antd";
 import { MailOutlined, LockOutlined } from "@ant-design/icons";
 import { useAuthStore } from "@/lib/store";
 import api from "@/lib/api";
@@ -18,6 +18,13 @@ export default function LoginPage() {
   const loginWithCode = useAuthStore((s) => s.loginWithCode);
   const register = useAuthStore((s) => s.register);
   const [codeLoginForm] = Form.useForm();
+  const [smtpEnabled, setSmtpEnabled] = useState(true);
+
+  useEffect(() => {
+    api.get("/auth/smtp-status").then((res) => {
+      setSmtpEnabled(res.data?.data?.smtp_enabled ?? true);
+    }).catch(() => {});
+  }, []);
 
   const handleRegister = async (values: { email: string; password: string; confirm_password: string }) => {
     setLoading(true);
@@ -103,31 +110,34 @@ export default function LoginPage() {
       children: (
         <Form form={codeLoginForm} layout="vertical" onFinish={handleCodeLogin} size="middle">
           <Form.Item name="email" rules={[{ required: true, type: "email", message: "请输入有效邮箱" }]}>
-            <Input prefix={<MailOutlined />} placeholder="邮箱" />
+            <Input prefix={<MailOutlined />} placeholder="邮箱" disabled={!smtpEnabled} />
           </Form.Item>
           <Form.Item name="code" rules={[{ required: true, len: 6, message: "请输入6位验证码" }]}>
             <Input
               placeholder="验证码"
               maxLength={6}
+              disabled={!smtpEnabled}
               suffix={
-                <Button
-                  type="link"
-                  size="small"
-                  disabled={codeSent}
-                  onClick={() => {
-                    const email = codeLoginForm.getFieldValue("email");
-                    if (email) handleSendCode(email);
-                    else message.warning("请先输入邮箱");
-                  }}
-                >
-                  {codeSent ? "已发送" : "发送验证码"}
-                </Button>
+                <Tooltip title={!smtpEnabled ? "邮件服务未启用，请联系管理员" : undefined}>
+                  <Button
+                    type="link"
+                    size="small"
+                    disabled={codeSent || !smtpEnabled}
+                    onClick={() => {
+                      const email = codeLoginForm.getFieldValue("email");
+                      if (email) handleSendCode(email);
+                      else message.warning("请先输入邮箱");
+                    }}
+                  >
+                    {!smtpEnabled ? "邮件服务未启用" : codeSent ? "已发送" : "发送验证码"}
+                  </Button>
+                </Tooltip>
               }
             />
           </Form.Item>
           <Form.Item>
-            <Button type="primary" htmlType="submit" loading={loading} block>
-              登录
+            <Button type="primary" htmlType="submit" loading={loading} disabled={!smtpEnabled} block>
+              {smtpEnabled ? "登录" : "邮件服务未启用"}
             </Button>
           </Form.Item>
         </Form>

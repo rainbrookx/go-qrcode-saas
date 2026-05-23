@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Form, Input, Button, message, Card } from "antd";
+import { Form, Input, Button, message, Card, Tooltip } from "antd";
 import { MailOutlined, LockOutlined } from "@ant-design/icons";
 import api from "@/lib/api";
 
@@ -10,7 +10,14 @@ export default function ForgotPasswordPage() {
   const [step, setStep] = useState<"email" | "reset">("email");
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
+  const [smtpEnabled, setSmtpEnabled] = useState(true);
   const router = useRouter();
+
+  useEffect(() => {
+    api.get("/auth/smtp-status").then((res) => {
+      setSmtpEnabled(res.data?.data?.smtp_enabled ?? true);
+    }).catch(() => {});
+  }, []);
 
   const handleSendCode = async (values: { email: string }) => {
     setLoading(true);
@@ -51,13 +58,20 @@ export default function ForgotPasswordPage() {
         {step === "email" ? (
           <Form layout="vertical" onFinish={handleSendCode} size="middle">
             <Form.Item name="email" rules={[{ required: true, type: "email", message: "请输入有效邮箱" }]}>
-              <Input prefix={<MailOutlined />} placeholder="注册邮箱" />
+              <Input prefix={<MailOutlined />} placeholder="注册邮箱" disabled={!smtpEnabled} />
             </Form.Item>
             <Form.Item>
-              <Button type="primary" htmlType="submit" loading={loading} block>
-                发送验证码
-              </Button>
+              <Tooltip title={!smtpEnabled ? "邮件服务未启用，请联系管理员" : undefined}>
+                <Button type="primary" htmlType="submit" loading={loading} disabled={!smtpEnabled} block>
+                  {smtpEnabled ? "发送验证码" : "邮件服务未启用"}
+                </Button>
+              </Tooltip>
             </Form.Item>
+            {!smtpEnabled && (
+              <div style={{ textAlign: "center", color: "#8c8c8c", fontSize: 13, marginTop: -8, marginBottom: 12 }}>
+                邮件服务未启用，无法发送验证码
+              </div>
+            )}
             <div className="text-center">
               <Button type="link" onClick={() => router.push("/login")}>返回登录</Button>
             </div>

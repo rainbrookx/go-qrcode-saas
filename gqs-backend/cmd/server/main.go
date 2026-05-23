@@ -40,7 +40,10 @@ func main() {
 	}
 
 	// Auth handler
-	mailer := auth.NewMailer(cfg.SMTPHost, cfg.SMTPPort, cfg.SMTPUser, cfg.SMTPPass, cfg.SMTPFrom)
+	var mailer *auth.Mailer
+	if cfg.SMTPEnabled {
+		mailer = auth.NewMailer(cfg.SMTPHost, cfg.SMTPPort, cfg.SMTPUser, cfg.SMTPPass, cfg.SMTPFrom)
+	}
 	authHandler := &handler.AuthHandler{
 		UserRepo:         userRepo,
 		RefreshTokenRepo: refreshTokenRepo,
@@ -133,6 +136,7 @@ func main() {
 		authGroup.POST("/verify-code", authHandler.SendVerifyCode)
 		authGroup.POST("/reset-password", authHandler.ResetPassword)
 		authGroup.POST("/refresh", authHandler.Refresh)
+		authGroup.GET("/smtp-status", authHandler.SmtpStatus)
 	}
 	// Protected auth routes
 	authProtected := api.Group("/auth").Use(middleware.Auth(cfg.JWTSecret))

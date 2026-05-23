@@ -11,6 +11,7 @@ type Config struct {
 	MinioAccess   string
 	MinioSecret   string
 	MinioBucket   string
+	SMTPEnabled   bool
 	SMTPHost      string
 	SMTPPort      string
 	SMTPUser      string
@@ -29,6 +30,7 @@ func Load() *Config {
 	viper.SetDefault("JWT_SECRET", "change-me-in-production")
 	viper.SetDefault("MINIO_ENDPOINT", "127.0.0.1:9000")
 	viper.SetDefault("MINIO_BUCKET", "qrcode-saas")
+	viper.SetDefault("SMTP_ENABLED", true)
 	viper.SetDefault("SMTP_PORT", "587")
 	viper.SetDefault("BASE_URL", "http://localhost:3000")
 
@@ -39,6 +41,7 @@ func Load() *Config {
 		MinioAccess:   viper.GetString("MINIO_ACCESS_KEY"),
 		MinioSecret:   viper.GetString("MINIO_SECRET_KEY"),
 		MinioBucket:   viper.GetString("MINIO_BUCKET"),
+		SMTPEnabled:   viper.GetBool("SMTP_ENABLED"),
 		SMTPHost:      viper.GetString("SMTP_HOST"),
 		SMTPPort:      viper.GetString("SMTP_PORT"),
 		SMTPUser:      viper.GetString("SMTP_USER"),

@@ -166,6 +166,11 @@ func (h *AuthHandler) SendVerifyCode(c *gin.Context) {
 		return
 	}
 
+	if h.Mailer == nil {
+		response.Error(c, http.StatusServiceUnavailable, response.CodeServerError, "邮件服务未启用")
+		return
+	}
+
 	code := generateCode()
 	record := &model.EmailVerifyCode{
 		Email:     req.Email,
@@ -363,6 +368,10 @@ func (h *AuthHandler) Quota(c *gin.Context) {
 			"form":    formCount,
 		},
 	})
+}
+
+func (h *AuthHandler) SmtpStatus(c *gin.Context) {
+	response.Success(c, gin.H{"smtp_enabled": h.Mailer != nil})
 }
 
 func (h *AuthHandler) issueTokens(c *gin.Context, user *model.User) {
