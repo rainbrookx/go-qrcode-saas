@@ -1,6 +1,6 @@
 "use client";
 
-import { useEditor, EditorContent } from "@tiptap/react";
+import { EditorContent, NodeViewWrapper, ReactNodeViewRenderer, useEditor, type NodeViewProps } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
@@ -48,6 +48,107 @@ const ToolbarButton = ({
   />
 );
 
+const ResizableImage = ({ node, selected, updateAttributes }: NodeViewProps) => {
+  const imageRef = useRef<HTMLImageElement>(null);
+
+  const startResize = useCallback(
+    (event: React.PointerEvent<HTMLSpanElement>) => {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const image = imageRef.current;
+      if (!image) return;
+
+      const startX = event.clientX;
+      const startWidth = image.offsetWidth;
+      const pointerId = event.pointerId;
+      event.currentTarget.setPointerCapture(pointerId);
+
+      const handleMove = (moveEvent: PointerEvent) => {
+        const nextWidth = Math.max(80, Math.round(startWidth + moveEvent.clientX - startX));
+        updateAttributes({ width: nextWidth });
+      };
+
+      const handleUp = () => {
+        document.removeEventListener("pointermove", handleMove);
+        document.removeEventListener("pointerup", handleUp);
+      };
+
+      document.addEventListener("pointermove", handleMove);
+      document.addEventListener("pointerup", handleUp);
+    },
+    [updateAttributes]
+  );
+
+  return (
+    <NodeViewWrapper
+      as="div"
+      style={{
+        display: "inline-block",
+        position: "relative",
+        lineHeight: 0,
+        maxWidth: "100%",
+      }}
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        ref={imageRef}
+        src={node.attrs.src}
+        alt={node.attrs.alt || ""}
+        title={node.attrs.title || undefined}
+        style={{
+          display: "block",
+          maxWidth: "100%",
+          width: node.attrs.width ? `${node.attrs.width}px` : undefined,
+        }}
+        draggable={false}
+      />
+      {selected && (
+        <span
+          contentEditable={false}
+          onPointerDown={startResize}
+          style={{
+            position: "absolute",
+            right: -5,
+            bottom: -5,
+            width: 10,
+            height: 10,
+            borderRadius: 2,
+            background: "#1677ff",
+            border: "1px solid #fff",
+            boxShadow: "0 0 0 1px #1677ff",
+            cursor: "nwse-resize",
+          }}
+        />
+      )}
+    </NodeViewWrapper>
+  );
+};
+
+const ResizableImageExtension = Image.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      width: {
+        default: null,
+        parseHTML: (element) => {
+          const width = element.getAttribute("width") || element.style.width;
+          const parsedWidth = Number.parseInt(width, 10);
+          return Number.isFinite(parsedWidth) ? parsedWidth : null;
+        },
+        renderHTML: (attributes) => {
+          if (!attributes.width) return {};
+          return { width: attributes.width };
+        },
+      },
+    };
+  },
+
+  addNodeView() {
+    return ReactNodeViewRenderer(ResizableImage);
+  },
+});
+
 export default function ArticleEditor({
   content,
   onChange,
@@ -65,7 +166,7 @@ export default function ArticleEditor({
     content: content || "",
     extensions: [
       StarterKit,
-      Image,
+      ResizableImageExtension,
       Link.configure({ openOnClick: false }),
       Placeholder.configure({ placeholder: "开始书写文章..." }),
       TextAlign.configure({ types: ["heading", "paragraph"] }),
