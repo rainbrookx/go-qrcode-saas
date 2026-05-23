@@ -45,6 +45,9 @@ func main() {
 		UserRepo:         userRepo,
 		RefreshTokenRepo: refreshTokenRepo,
 		EmailCodeRepo:    emailCodeRepo,
+		UrldynRepo:       urldynRepo,
+		ArticleRepo:      articleRepo,
+		FormRepo:         formRepo,
 		JWTSecret:        cfg.JWTSecret,
 		Mailer:           mailer,
 	}

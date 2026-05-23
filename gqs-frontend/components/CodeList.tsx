@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Table, Tag, Button, Space, Input, Select, message, Popconfirm } from "antd";
-import { DeleteOutlined, EditOutlined, SearchOutlined } from "@ant-design/icons";
+import { Table, Tag, Button, Space, Input, Select, message, Popconfirm, Modal } from "antd";
+import { DeleteOutlined, EditOutlined, SearchOutlined, QrcodeOutlined } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 import api from "@/lib/api";
+import QRPreview from "@/components/QRPreview";
 
 const typeColors: Record<string, string> = { urldyn: "blue", article: "green", form: "orange" };
 const typeLabels: Record<string, string> = { urldyn: "网址跳转", article: "文章", form: "表单" };
@@ -19,6 +20,9 @@ export default function CodeList() {
   const [keyword, setKeyword] = useState("");
   const [typeFilter, setTypeFilter] = useState<string | undefined>();
   const [refreshKey, setRefreshKey] = useState(0);
+  const [qrModalVisible, setQrModalVisible] = useState(false);
+  const [qrModalValue, setQrModalValue] = useState("");
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const router = useRouter();
 
   const triggerSearch = () => {
@@ -65,6 +69,27 @@ export default function CodeList() {
     }
   };
 
+  const handleBatchDelete = async () => {
+    const results = await Promise.allSettled(
+      selectedRowKeys.map((key) => {
+        const keyStr = key as string;
+        const lastUnderscore = keyStr.lastIndexOf("_");
+        const type = keyStr.slice(0, lastUnderscore);
+        const id = keyStr.slice(lastUnderscore + 1);
+        return api.delete(`/${type}/${id}`);
+      })
+    );
+    const succeeded = results.filter((r) => r.status === "fulfilled").length;
+    const failed = results.filter((r) => r.status === "rejected").length;
+    if (failed === 0) {
+      message.success(`成功删除 ${succeeded} 个活码`);
+    } else {
+      message.warning(`删除完成：${succeeded} 成功，${failed} 失败`);
+    }
+    setSelectedRowKeys([]);
+    setRefreshKey((k) => k + 1);
+  };
+
   const columns = [
     {
       title: "类型",
@@ -109,9 +134,18 @@ export default function CodeList() {
     {
       title: "操作",
       key: "actions",
-      width: 120,
+      width: 160,
       render: (_: unknown, r: Record<string, unknown>) => (
         <Space>
+          <Button
+            type="link"
+            size="small"
+            icon={<QrcodeOutlined />}
+            onClick={() => {
+              setQrModalValue(r.short_url as string);
+              setQrModalVisible(true);
+            }}
+          />
           <Button
             type="link"
             size="small"
@@ -155,11 +189,25 @@ export default function CodeList() {
         >
           搜索
         </Button>
+        {selectedRowKeys.length > 0 && (
+          <Popconfirm
+            title={`确定删除选中的 ${selectedRowKeys.length} 个活码？此操作不可恢复。`}
+            onConfirm={handleBatchDelete}
+          >
+            <Button danger icon={<DeleteOutlined />}>
+              批量删除 ({selectedRowKeys.length})
+            </Button>
+          </Popconfirm>
+        )}
       </div>
       <Table
         columns={columns}
         dataSource={data}
         rowKey={(r) => `${r.type}_${r.id}`}
+        rowSelection={{
+          selectedRowKeys,
+          onChange: (keys) => setSelectedRowKeys(keys),
+        }}
         loading={loading}
         size="middle"
         bordered
@@ -173,6 +221,19 @@ export default function CodeList() {
         }}
         locale={{ emptyText: "还没有创建活码" }}
       />
+
+      <Modal
+        title="二维码"
+        open={qrModalVisible}
+        footer={null}
+        onCancel={() => setQrModalVisible(false)}
+        width={320}
+        centered
+      >
+        <div style={{ display: "flex", justifyContent: "center", padding: "16px 0" }}>
+          <QRPreview value={qrModalValue} showActions copyText={qrModalValue} />
+        </div>
+      </Modal>
     </div>
   );
 }

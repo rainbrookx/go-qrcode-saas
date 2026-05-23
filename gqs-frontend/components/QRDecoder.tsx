@@ -3,7 +3,7 @@
 import { useState, useCallback } from "react";
 import { Upload, Button, Input, message } from "antd";
 import { InboxOutlined, CopyOutlined } from "@ant-design/icons";
-import jsQR from "jsqr";
+import QrScanner from "qr-scanner";
 
 const { Dragger } = Upload;
 const { TextArea } = Input;
@@ -12,40 +12,22 @@ export default function QRDecoder() {
   const [result, setResult] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleFile = useCallback((file: File): false => {
+  const handleFile = useCallback(async (file: File): Promise<false> => {
     if (file.size > 5 * 1024 * 1024) {
       message.error("文件大小不能超过 5 MB");
       return false;
     }
     setLoading(true);
-    const img = new Image();
-    img.onload = () => {
-      const canvas = document.createElement("canvas");
-      canvas.width = img.width;
-      canvas.height = img.height;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) {
-        message.error("图片解析失败");
-        setLoading(false);
-        return;
-      }
-      ctx.drawImage(img, 0, 0);
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const decoded = jsQR(imageData.data, imageData.width, imageData.height);
-      if (decoded) {
-        setResult(decoded.data);
-        message.success("解码成功");
-      } else {
-        message.error("未识别到二维码");
-        setResult("");
-      }
+    try {
+      const decoded = await QrScanner.scanImage(file);
+      setResult(decoded);
+      message.success("解码成功");
+    } catch {
+      message.error("未识别到二维码");
+      setResult("");
+    } finally {
       setLoading(false);
-    };
-    img.onerror = () => {
-      message.error("图片加载失败，请确认是有效图片");
-      setLoading(false);
-    };
-    img.src = URL.createObjectURL(file);
+    }
     return false;
   }, []);
 

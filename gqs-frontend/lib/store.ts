@@ -4,6 +4,7 @@ import api, { setTokens, clearTokens } from "./api";
 interface User {
   id: number;
   email: string;
+  created_at?: string;
 }
 
 interface AuthState {

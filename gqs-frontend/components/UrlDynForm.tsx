@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Form, Input, Select, Button, message } from "antd";
 import { LinkOutlined } from "@ant-design/icons";
 import api from "@/lib/api";
 
 interface Props {
   onCreated: (data: { short_url: string; code: string; target_url: string; expires_at: string }) => void;
+  initialValues?: { target_url: string; expires_in: number };
+  editId?: number;
 }
 
 const expiryOptions = [
@@ -18,18 +20,26 @@ const expiryOptions = [
   { value: 60, label: "60 天" },
 ];
 
-export default function UrlDynForm({ onCreated }: Props) {
+export default function UrlDynForm({ onCreated, initialValues, editId }: Props) {
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
+
+  useEffect(() => {
+    if (initialValues) {
+      form.setFieldsValue(initialValues);
+    }
+  }, [initialValues, form]);
 
   const handleSubmit = async (values: { target_url: string; expires_in: number }) => {
     setLoading(true);
     try {
-      const res = await api.post("/urldyn", values);
+      const res = editId
+        ? await api.put(`/urldyn/${editId}`, values)
+        : await api.post("/urldyn", values);
       onCreated(res.data.data);
-      message.success("生成成功");
+      message.success(editId ? "保存成功" : "生成成功");
     } catch (err: unknown) {
-      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || "创建失败";
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || (editId ? "保存失败" : "创建失败");
       message.error(msg);
     } finally {
       setLoading(false);
@@ -52,7 +62,7 @@ export default function UrlDynForm({ onCreated }: Props) {
       </Form.Item>
       <Form.Item>
         <Button type="primary" htmlType="submit" loading={loading} block style={{ minHeight: 32 }}>
-          生成二维码
+          {editId ? "保存修改" : "生成二维码"}
         </Button>
       </Form.Item>
     </Form>

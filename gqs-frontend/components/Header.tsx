@@ -80,6 +80,7 @@ export default function Header() {
           <Dropdown
             menu={{
               items: [
+                { key: "profile", label: "个人中心", onClick: () => router.push("/profile") },
                 { key: "codes", label: "我的活码", onClick: () => router.push("/codes") },
                 { type: "divider" },
                 {
