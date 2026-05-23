@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Form, Input, Select, Button, message } from "antd";
+import { Alert, Form, Input, Select, Button, message } from "antd";
+import { useAuthStore } from "@/lib/store";
 import ArticleEditor from "@/components/ArticleEditor";
 import AttachmentUpload from "@/components/AttachmentUpload";
 import QRPreview from "@/components/QRPreview";
@@ -22,6 +23,7 @@ interface CreatedData {
 }
 
 export default function ArticlePage() {
+  const user = useAuthStore((s) => s.user);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<CreatedData | null>(null);
   const [content, setContent] = useState("");
@@ -55,6 +57,19 @@ export default function ArticlePage() {
 
   return (
     <div>
+      {!user && (
+        <Alert
+          type="info"
+          showIcon
+          title="登录后可创建活码并修改目标链接"
+          action={
+            <a href="/login" style={{ whiteSpace: "nowrap" }}>
+              去登录
+            </a>
+          }
+          style={{ marginBottom: 16 }}
+        />
+      )}
       <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 16, color: "#141414" }}>创建文章</h3>
 
       <Form form={form} layout="vertical" onFinish={handleSubmit} size="middle" initialValues={{ expires_in: 30 }}>

@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Form, Input, Select, InputNumber, DatePicker, Button, message, Card } from "antd";
+import { Alert, Form, Input, Select, InputNumber, DatePicker, Button, message, Card } from "antd";
+import { useAuthStore } from "@/lib/store";
 import FormBuilder from "@/components/FormBuilder";
 import QRPreview from "@/components/QRPreview";
 import api from "@/lib/api";
@@ -29,6 +30,7 @@ interface CreatedData {
 }
 
 export default function FormPage() {
+  const user = useAuthStore((s) => s.user);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<CreatedData | null>(null);
   const [fields, setFields] = useState<FieldConfig[]>([]);
@@ -66,6 +68,19 @@ export default function FormPage() {
 
   return (
     <div>
+      {!user && (
+        <Alert
+          type="info"
+          showIcon
+          title="登录后可创建活码并修改目标链接"
+          action={
+            <a href="/login" style={{ whiteSpace: "nowrap" }}>
+              去登录
+            </a>
+          }
+          style={{ marginBottom: 16 }}
+        />
+      )}
       <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 24, color: "#141414" }}>创建表单</h3>
 
       <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
