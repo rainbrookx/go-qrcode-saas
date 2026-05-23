@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Button, Card, Input, Switch, InputNumber, Space, Popconfirm } from "antd";
 import {
   DeleteOutlined,
   ArrowUpOutlined,
   ArrowDownOutlined,
+  HolderOutlined,
   FontSizeOutlined,
   CheckSquareOutlined,
   DownOutlined,
@@ -15,6 +16,23 @@ import {
   AlignLeftOutlined,
   UnorderedListOutlined,
 } from "@ant-design/icons";
+import {
+  DndContext,
+  DragOverlay,
+  closestCenter,
+  PointerSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+  type DragStartEvent,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  useSortable,
+  arrayMove,
+} from "@dnd-kit/sortable";
 
 const fieldTypes = [
   { value: "text", label: "单行文本", icon: <FontSizeOutlined /> },
@@ -42,10 +60,141 @@ interface Props {
 
 let fieldCounter = 0;
 
-export default function FormBuilder({ value = [], onChange }: Props) {
-  const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
+function SortableFieldCard({
+  field,
+  idx,
+  isSelected,
+  onSelect,
+  onRemove,
+  onMove,
+  fieldCount,
+  typeInfo,
+}: {
+  field: FieldConfig;
+  idx: number;
+  isSelected: boolean;
+  onSelect: () => void;
+  onRemove: () => void;
+  onMove: (dir: -1 | 1) => void;
+  fieldCount: number;
+  typeInfo: { icon: React.ReactNode; label: string } | undefined;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: field.id });
 
-  const notify = (fields: FieldConfig[]) => onChange?.(fields);
+  const style: React.CSSProperties = {
+    transform: transform
+      ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
+      : undefined,
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+    marginBottom: 4,
+    borderColor: isSelected ? "#1677FF" : undefined,
+    cursor: "default",
+  };
+
+  return (
+    <Card
+      ref={setNodeRef}
+      size="small"
+      hoverable
+      onClick={onSelect}
+      style={style}
+      styles={{ body: { padding: "6px 10px" } }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 13 }}>
+        <Space size={2}>
+          <Button
+            type="text"
+            size="small"
+            icon={<HolderOutlined />}
+            style={{ cursor: "grab", color: "#8c8c8c", touchAction: "none" }}
+            {...attributes}
+            {...listeners}
+          />
+          <span>
+            {typeInfo?.icon} {field.label || "未命名"}{" "}
+            <span style={{ color: "#8c8c8c", fontSize: 11 }}>({typeInfo?.label})</span>
+            {field.required && <span style={{ color: "#ff4d4f", marginLeft: 4 }}>*</span>}
+          </span>
+        </Space>
+        <Space size={2}>
+          <Button type="text" size="small" icon={<ArrowUpOutlined />} disabled={idx === 0} onClick={(e) => { e.stopPropagation(); onMove(-1); }} />
+          <Button type="text" size="small" icon={<ArrowDownOutlined />} disabled={idx === fieldCount - 1} onClick={(e) => { e.stopPropagation(); onMove(1); }} />
+          <Popconfirm title="删除此字段？" onConfirm={(e) => { e?.stopPropagation(); onRemove(); }}>
+            <Button type="text" size="small" danger icon={<DeleteOutlined />} onClick={(e) => e.stopPropagation()} />
+          </Popconfirm>
+        </Space>
+      </div>
+    </Card>
+  );
+}
+
+function FieldCardPreview({ field }: { field: FieldConfig }) {
+  const typeInfo = fieldTypes.find((t) => t.value === field.type);
+  return (
+    <Card
+      size="small"
+      style={{
+        borderColor: "#1677FF",
+        cursor: "grabbing",
+        width: "100%",
+        boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+      }}
+      styles={{ body: { padding: "6px 10px" } }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 13 }}>
+        <span>
+          {typeInfo?.icon} {field.label || "未命名"}{" "}
+          <span style={{ color: "#8c8c8c", fontSize: 11 }}>({typeInfo?.label})</span>
+          {field.required && <span style={{ color: "#ff4d4f", marginLeft: 4 }}>*</span>}
+        </span>
+      </div>
+    </Card>
+  );
+}
+
+export default function FormBuilder({ value = [], onChange }: Props) {
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [activeId, setActiveId] = useState<string | null>(null);
+
+  const notify = useCallback((fields: FieldConfig[]) => onChange?.(fields), [onChange]);
+
+  const selectedIdx = selectedId ? value.findIndex((f) => f.id === selectedId) : null;
+  const selected = selectedIdx !== null && selectedIdx >= 0 ? value[selectedIdx] : null;
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(KeyboardSensor),
+  );
+
+  const handleDragStart = useCallback((event: DragStartEvent) => {
+    setActiveId(event.active.id as string);
+  }, []);
+
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) {
+      setActiveId(null);
+      return;
+    }
+
+    const oldIndex = value.findIndex((f) => f.id === active.id);
+    const newIndex = value.findIndex((f) => f.id === over.id);
+    if (oldIndex === -1 || newIndex === -1) {
+      setActiveId(null);
+      return;
+    }
+
+    notify(arrayMove(value, oldIndex, newIndex));
+    setActiveId(null);
+  }, [value, notify]);
 
   const addField = (type: string) => {
     const id = `f${++fieldCounter}_${new Date().getTime()}`;
@@ -56,13 +205,13 @@ export default function FormBuilder({ value = [], onChange }: Props) {
     if (type === "rating") props.max = 5;
     const newFields = [...value, { id, type, label: "", required: false, props }];
     notify(newFields);
-    setSelectedIdx(newFields.length - 1);
+    setSelectedId(id);
   };
 
   const removeField = (idx: number) => {
     const newFields = value.filter((_, i) => i !== idx);
     notify(newFields);
-    setSelectedIdx(null);
+    setSelectedId(null);
   };
 
   const moveField = (idx: number, dir: -1 | 1) => {
@@ -71,7 +220,7 @@ export default function FormBuilder({ value = [], onChange }: Props) {
     const newFields = [...value];
     [newFields[idx], newFields[newIdx]] = [newFields[newIdx], newFields[idx]];
     notify(newFields);
-    setSelectedIdx(newIdx);
+    setSelectedId(value[newIdx].id);
   };
 
   const updateField = (idx: number, updates: Partial<FieldConfig>) => {
@@ -79,7 +228,7 @@ export default function FormBuilder({ value = [], onChange }: Props) {
     notify(newFields);
   };
 
-  const selected = selectedIdx !== null ? value[selectedIdx] : null;
+  const activeField = activeId ? value.find((f) => f.id === activeId) : null;
 
   return (
     <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
@@ -91,38 +240,34 @@ export default function FormBuilder({ value = [], onChange }: Props) {
               从右侧添加字段
             </div>
           )}
-          {value.map((field, idx) => {
-            const typeInfo = fieldTypes.find((t) => t.value === field.type);
-            return (
-              <Card
-                key={field.id}
-                size="small"
-                hoverable
-                onClick={() => setSelectedIdx(idx)}
-                style={{
-                  marginBottom: 4,
-                  borderColor: selectedIdx === idx ? "#1677FF" : undefined,
-                  cursor: "pointer",
-                }}
-                styles={{ body: { padding: "6px 10px" } }}
-              >
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 13 }}>
-                  <span>
-                    {typeInfo?.icon} {field.label || "未命名"}{" "}
-                    <span style={{ color: "#8c8c8c", fontSize: 11 }}>({typeInfo?.label})</span>
-                    {field.required && <span style={{ color: "#ff4d4f", marginLeft: 4 }}>*</span>}
-                  </span>
-                  <Space size={2}>
-                    <Button type="text" size="small" icon={<ArrowUpOutlined />} disabled={idx === 0} onClick={(e) => { e.stopPropagation(); moveField(idx, -1); }} />
-                    <Button type="text" size="small" icon={<ArrowDownOutlined />} disabled={idx === value.length - 1} onClick={(e) => { e.stopPropagation(); moveField(idx, 1); }} />
-                    <Popconfirm title="删除此字段？" onConfirm={(e) => { e?.stopPropagation(); removeField(idx); }}>
-                      <Button type="text" size="small" danger icon={<DeleteOutlined />} onClick={(e) => e.stopPropagation()} />
-                    </Popconfirm>
-                  </Space>
-                </div>
-              </Card>
-            );
-          })}
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext items={value.map((f) => f.id)} strategy={verticalListSortingStrategy}>
+              {value.map((field, idx) => {
+                const typeInfo = fieldTypes.find((t) => t.value === field.type);
+                return (
+                  <SortableFieldCard
+                    key={field.id}
+                    field={field}
+                    idx={idx}
+                    isSelected={selectedId === field.id}
+                    onSelect={() => setSelectedId(field.id)}
+                    onRemove={() => removeField(idx)}
+                    onMove={(dir) => moveField(idx, dir)}
+                    fieldCount={value.length}
+                    typeInfo={typeInfo}
+                  />
+                );
+              })}
+            </SortableContext>
+            <DragOverlay style={{ marginTop: -55 }}>
+              {activeField ? <FieldCardPreview field={activeField} /> : null}
+            </DragOverlay>
+          </DndContext>
         </div>
       </div>
 

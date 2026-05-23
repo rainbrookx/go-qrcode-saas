@@ -8,7 +8,9 @@
       "Bash(go test *)",
       "WebFetch(domain:xrender.fun)",
       "WebFetch(domain:www.npmjs.com)",
-      "WebFetch(domain:letsform.dev)"
+      "WebFetch(domain:letsform.dev)",
+      "WebSearch",
+      "WebFetch(domain:github.com)"
     ]
   }
 }
