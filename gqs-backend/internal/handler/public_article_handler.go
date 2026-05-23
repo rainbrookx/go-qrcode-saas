@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -34,7 +35,7 @@ func (h *PublicArticleHandler) GetArticle(c *gin.Context) {
 	atts, _ := h.ArticleAttachmentRepo.FindByArticleID(article.ID)
 	attsWithURL := make([]gin.H, len(atts))
 	for i, a := range atts {
-		url, _ := h.Minio.PresignedURL(c.Request.Context(), a.FileKey, 3600)
+		url, _ := h.Minio.PresignedURL(c.Request.Context(), a.FileKey, time.Hour)
 		attsWithURL[i] = gin.H{
 			"type": a.FileType,
 			"name": a.FileName,

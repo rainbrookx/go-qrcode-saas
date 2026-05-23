@@ -247,6 +247,10 @@ export default function ArticleEditor({
         });
         const data = res.data.data;
         if (data.type === "image" && editor) {
+          if (!data.url) {
+            message.error("图片访问地址生成失败");
+            return false;
+          }
           editor.chain().focus().setImage({ src: data.url }).run();
         }
         message.success("上传成功");

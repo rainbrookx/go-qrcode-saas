@@ -2,10 +2,10 @@
   "permissions": {
     "allow": [
       "Bash(pnpm lint *)",
-      "Bash(pnpm build *)"
-    ],
-    "deny": [
-      "Bash(pnpm dev *)"
+      "Bash(pnpm build *)",
+      "Bash(gofmt *)",
+      "Bash(go vet *)",
+      "Bash(go test *)"
     ]
   }
 }

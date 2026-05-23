@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -55,7 +56,11 @@ func (h *UploadHandler) Upload(c *gin.Context) {
 		return
 	}
 
-	presignedURL, _ := h.Minio.PresignedURL(ctx, objectKey, 3600)
+	presignedURL, err := h.Minio.PresignedURL(ctx, objectKey, time.Hour)
+	if err != nil || presignedURL == "" {
+		response.Error(c, http.StatusInternalServerError, response.CodeUploadFail, "图片访问地址生成失败")
+		return
+	}
 
 	response.Created(c, gin.H{
 		"key":  objectKey,
