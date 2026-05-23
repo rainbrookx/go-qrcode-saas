@@ -9,6 +9,8 @@ Design docs in `doc/` define product requirements and API behavior:
 - `doc/API.md` — REST API contract, error codes, request/response schemas
 - `doc/UI_STYLE_GUIDE.md` — design tokens, layout, component conventions
 - `doc/TECH_STACK.md` — full technology stack with install commands
+- `doc/FEATURES.md` — feature implementation status, gaps, and roadmap items
+- `doc/init.sql` — full database schema reference (all tables, columns, indexes)
 
 ## Hard constraints
 
@@ -51,12 +53,14 @@ Architecture:
 
 Routing pattern:
 - API routes live under `/api/v1`.
-- Public auth: `/api/v1/auth/register`, `/login`, `/verify-code`, `/reset-password`, `/refresh`.
+- Public auth: `/api/v1/auth/register`, `/login`, `/verify-code`, `/reset-password`, `/refresh`, `/smtp-status`.
 - Protected auth/user: `/api/v1/auth/change-password`, `/auth/me`, `/user/quota`.
 - Protected CRUD domains: `/api/v1/urldyn`, `/article`, `/form`, `/upload`, `/codes`.
+- Form submissions: `GET /form/:id/submissions` (list) and `GET /form/:id/submissions/export` (CSV/xlsx, powered by `excelize/v2`).
 - Public short links use no API prefix: `/u/:code`, `/a/:code`, `/f/:code`.
 - Public read/submit handlers exist for article/form (`/public/article/:code`, `/public/form/:code`, `/public/form/:code/submit`) and should stay unauthenticated.
 - Uploaded files are served at `/api/v1/files/*key` — the backend proxies MinIO so port 9000 is never exposed to the browser.
+- Health check: `GET /api/v1/health`.
 
 ## Frontend (`gqs-frontend/`)
 
@@ -77,6 +81,8 @@ Architecture:
 - Main authenticated/public tool pages are grouped under `app/(main)/` and share `app/(main)/layout.tsx` with `Header` and `Footer`.
 - Public render pages for short links are `app/u/[code]/page.tsx`, `app/a/[code]/page.tsx`, and `app/f/[code]/page.tsx`.
 - Auth pages are `app/login/page.tsx` and `app/forgot-password/page.tsx`.
+- Edit pages for persistent types: `app/(main)/urldyn/[id]/page.tsx`, `app/(main)/article/[id]/page.tsx`, `app/(main)/form/[id]/page.tsx`, `app/(main)/form/[id]/submissions/page.tsx`.
+- Other pages: `app/(main)/profile/page.tsx` (change password, account info), `app/(main)/about/page.tsx` (project info).
 - Shared UI lives in `components/` (`QRPreview`, `QRDecoder`, `UrlDynForm`, `ArticleEditor`, `AttachmentUpload`, `FormBuilder`, `CodeList`, layout components).
 - `lib/api.ts` owns the Axios client, `/api/v1` base path, bearer token injection, and refresh-token retry flow.
 - `lib/store.ts` owns Zustand auth state and calls auth APIs.
