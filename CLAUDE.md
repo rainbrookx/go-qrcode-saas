@@ -22,6 +22,8 @@ Design docs in `doc/` define product requirements and API behavior:
 
 `gqs-backend/` and `gqs-frontend/` are independent projects. There is no root workspace, Makefile, or Docker setup tying them together. Run commands from inside the relevant project directory.
 
+Backend serves on `:8080`; frontend dev server on `:3000`. The frontend proxies `/api/*` to `http://localhost:8080/api/*` via `next.config.ts` rewrites, and redirects `/` to `/text`.
+
 ## Backend (`gqs-backend/`) — Go 1.26.2
 
 Module: `github.com/rainbrookx/go-qrcode-saas`.
@@ -54,6 +56,7 @@ Routing pattern:
 - Protected CRUD domains: `/api/v1/urldyn`, `/article`, `/form`, `/upload`, `/codes`.
 - Public short links use no API prefix: `/u/:code`, `/a/:code`, `/f/:code`.
 - Public read/submit handlers exist for article/form (`/public/article/:code`, `/public/form/:code`, `/public/form/:code/submit`) and should stay unauthenticated.
+- Uploaded files are served at `/api/v1/files/*key` — the backend proxies MinIO so port 9000 is never exposed to the browser.
 
 ## Frontend (`gqs-frontend/`)
 
@@ -72,7 +75,7 @@ Architecture:
 - App Router files live directly under `app/`; there is no `src/` directory.
 - TS path alias `@/*` maps to `./*`, rooted at `gqs-frontend/`.
 - Main authenticated/public tool pages are grouped under `app/(main)/` and share `app/(main)/layout.tsx` with `Header` and `Footer`.
-- Public render pages for short links are `app/a/[code]/page.tsx` and `app/f/[code]/page.tsx`.
+- Public render pages for short links are `app/u/[code]/page.tsx`, `app/a/[code]/page.tsx`, and `app/f/[code]/page.tsx`.
 - Auth pages are `app/login/page.tsx` and `app/forgot-password/page.tsx`.
 - Shared UI lives in `components/` (`QRPreview`, `QRDecoder`, `UrlDynForm`, `ArticleEditor`, `AttachmentUpload`, `FormBuilder`, `CodeList`, layout components).
 - `lib/api.ts` owns the Axios client, `/api/v1` base path, bearer token injection, and refresh-token retry flow.
