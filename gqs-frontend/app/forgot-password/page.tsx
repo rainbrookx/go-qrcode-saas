@@ -56,9 +56,9 @@ export default function ForgotPasswordPage() {
         </h2>
 
         {step === "email" ? (
-          <Form layout="vertical" onFinish={handleSendCode} size="middle">
+          <Form layout="vertical" onFinish={handleSendCode} size="middle" autoComplete="off">
             <Form.Item name="email" rules={[{ required: true, type: "email", message: "请输入有效邮箱" }]}>
-              <Input prefix={<MailOutlined />} placeholder="注册邮箱" disabled={!smtpEnabled} />
+              <Input autoComplete="off" prefix={<MailOutlined />} placeholder="注册邮箱" disabled={!smtpEnabled} />
             </Form.Item>
             <Form.Item>
               <Tooltip title={!smtpEnabled ? "邮件服务未启用，请联系管理员" : undefined}>
@@ -77,12 +77,12 @@ export default function ForgotPasswordPage() {
             </div>
           </Form>
         ) : (
-          <Form layout="vertical" onFinish={handleReset} size="middle">
+          <Form layout="vertical" onFinish={handleReset} size="middle" autoComplete="off">
             <div style={{ marginBottom: 12, fontSize: 14, color: "#8c8c8c", textAlign: "center" }}>
               验证码已发送至 {email}
             </div>
             <Form.Item name="code" rules={[{ required: true, len: 6, message: "请输入6位验证码" }]}>
-              <Input placeholder="验证码" maxLength={6} />
+              <Input autoComplete="off" placeholder="验证码" maxLength={6} />
             </Form.Item>
             <Form.Item
               name="new_password"
@@ -91,7 +91,7 @@ export default function ForgotPasswordPage() {
                 { pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, message: "须包含大小写字母和数字" },
               ]}
             >
-              <Input.Password prefix={<LockOutlined />} placeholder="新密码" />
+              <Input.Password autoComplete="off" prefix={<LockOutlined />} placeholder="新密码" />
             </Form.Item>
             <Form.Item
               name="confirm_password"
@@ -106,7 +106,7 @@ export default function ForgotPasswordPage() {
                 }),
               ]}
             >
-              <Input.Password prefix={<LockOutlined />} placeholder="确认密码" />
+              <Input.Password autoComplete="off" prefix={<LockOutlined />} placeholder="确认密码" />
             </Form.Item>
             <Form.Item>
               <Button type="primary" htmlType="submit" loading={loading} block>

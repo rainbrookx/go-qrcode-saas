@@ -23,7 +23,7 @@ export default function UrlPage() {
     <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
       <div style={{ flex: "1 1 300px", minWidth: 280 }}>
         <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 16, color: "#141414" }}>网址生成二维码</h3>
-        <Form form={form} layout="vertical" size="middle">
+        <Form form={form} layout="vertical" size="middle" autoComplete="off">
           <Form.Item
             name="url"
             rules={[
@@ -32,6 +32,7 @@ export default function UrlPage() {
             ]}
           >
             <Input
+              autoComplete="off"
               prefix={<LinkOutlined />}
               placeholder="https://example.com"
               maxLength={2048}

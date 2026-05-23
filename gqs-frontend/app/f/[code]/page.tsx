@@ -71,7 +71,7 @@ export default function PublicFormPage({ params }: { params: Promise<{ code: str
         </p>
       )}
 
-      <Form form={form} layout="vertical" onFinish={handleSubmit} size="middle">
+      <Form form={form} layout="vertical" onFinish={handleSubmit} size="middle" autoComplete="off">
         {data.fields.map((field) => (
           <Form.Item
             key={field.id}
@@ -96,9 +96,9 @@ function renderField(field: FieldConfig) {
   const p = field.props;
   switch (field.type) {
     case "text":
-      return <Input placeholder={(p.placeholder as string) || ""} />;
+      return <Input autoComplete="off" placeholder={(p.placeholder as string) || ""} />;
     case "textarea":
-      return <Input.TextArea rows={4} maxLength={(p.max_length as number) || 500} placeholder={(p.placeholder as string) || ""} />;
+      return <Input.TextArea autoComplete="off" rows={4} maxLength={(p.max_length as number) || 500} placeholder={(p.placeholder as string) || ""} />;
     case "radio":
       return <Radio.Group options={(p.options as string[])?.map((o) => ({ label: o, value: o })) || []} />;
     case "checkbox":

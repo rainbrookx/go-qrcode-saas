@@ -382,6 +382,7 @@ export default function ArticleEditor({
       >
         <Input
           autoFocus
+          autoComplete="off"
           placeholder="请输入链接地址"
           value={linkUrl}
           onChange={(event) => setLinkUrl(event.target.value)}
@@ -398,6 +399,7 @@ export default function ArticleEditor({
       >
         <Input
           autoFocus
+          autoComplete="off"
           placeholder="请输入图片 URL"
           value={imageUrl}
           onChange={(event) => setImageUrl(event.target.value)}

@@ -106,12 +106,13 @@ export default function ProfilePage() {
           layout="vertical"
           onFinish={handleChangePassword}
           size="middle"
+          autoComplete="off"
         >
           <Form.Item
             name="old_password"
             rules={[{ required: true, message: "请输入旧密码" }]}
           >
-            <Input.Password placeholder="旧密码" />
+            <Input.Password autoComplete="off" placeholder="旧密码" />
           </Form.Item>
           <Form.Item
             name="new_password"
@@ -120,7 +121,7 @@ export default function ProfilePage() {
               { min: 8, message: "密码至少 8 位" },
             ]}
           >
-            <Input.Password placeholder="新密码（至少 8 位）" />
+            <Input.Password autoComplete="off" placeholder="新密码（至少 8 位）" />
           </Form.Item>
           <Form.Item
             name="confirm_password"
@@ -137,7 +138,7 @@ export default function ProfilePage() {
               }),
             ]}
           >
-            <Input.Password placeholder="确认新密码" />
+            <Input.Password autoComplete="off" placeholder="确认新密码" />
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit" loading={changingPassword} block>

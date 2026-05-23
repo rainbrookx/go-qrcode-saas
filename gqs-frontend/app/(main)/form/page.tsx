@@ -89,9 +89,9 @@ export default function FormPage() {
         </div>
         <div style={{ flex: "1 1 300px", minWidth: 260 }}>
           <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 12 }}>表单设置</h3>
-          <Form form={form} layout="vertical" onFinish={handleSubmit} size="middle" initialValues={{ expires_in: 30 }}>
+          <Form form={form} layout="vertical" onFinish={handleSubmit} size="middle" initialValues={{ expires_in: 30 }} autoComplete="off">
             <Form.Item name="title" rules={[{ required: true, max: 200, message: "请输入表单标题" }]}>
-              <Input placeholder="表单标题" />
+              <Input autoComplete="off" placeholder="表单标题" />
             </Form.Item>
             <Form.Item name="expires_in" label="有效期">
               <Select options={expiryOptions} />

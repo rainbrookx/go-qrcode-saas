@@ -47,7 +47,7 @@ export default function UrlDynForm({ onCreated, initialValues, editId }: Props) 
   };
 
   return (
-    <Form form={form} layout="vertical" onFinish={handleSubmit} size="middle" initialValues={{ expires_in: 30 }}>
+    <Form form={form} layout="vertical" onFinish={handleSubmit} size="middle" initialValues={{ expires_in: 30 }} autoComplete="off">
       <Form.Item
         name="target_url"
         rules={[
@@ -55,7 +55,7 @@ export default function UrlDynForm({ onCreated, initialValues, editId }: Props) 
           { type: "url", message: "请输入有效的 http/https 网址" },
         ]}
       >
-        <Input prefix={<LinkOutlined />} placeholder="https://example.com" />
+        <Input autoComplete="off" prefix={<LinkOutlined />} placeholder="https://example.com" />
       </Form.Item>
       <Form.Item name="expires_in" label="有效期" rules={[{ required: true, message: "请选择有效期" }]}>
         <Select options={expiryOptions} />

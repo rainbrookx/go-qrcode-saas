@@ -72,9 +72,9 @@ export default function ArticlePage() {
       )}
       <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 16, color: "#141414" }}>创建文章</h3>
 
-      <Form form={form} layout="vertical" onFinish={handleSubmit} size="middle" initialValues={{ expires_in: 30 }}>
+      <Form form={form} layout="vertical" onFinish={handleSubmit} size="middle" initialValues={{ expires_in: 30 }} autoComplete="off">
         <Form.Item name="title" rules={[{ required: true, max: 200, message: "请输入标题（最多200字符）" }]}>
-          <Input placeholder="文章标题" />
+          <Input autoComplete="off" placeholder="文章标题" />
         </Form.Item>
 
         <ArticleEditor content={content} onChange={setContent} />

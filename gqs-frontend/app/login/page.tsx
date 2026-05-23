@@ -84,12 +84,12 @@ export default function LoginPage() {
       key: "password",
       label: "密码登录",
       children: (
-        <Form layout="vertical" onFinish={handlePasswordLogin} size="middle">
+        <Form layout="vertical" onFinish={handlePasswordLogin} size="middle" autoComplete="off">
           <Form.Item name="email" rules={[{ required: true, type: "email", message: "请输入有效邮箱" }]}>
-            <Input prefix={<MailOutlined />} placeholder="邮箱" />
+            <Input autoComplete="off" prefix={<MailOutlined />} placeholder="邮箱" />
           </Form.Item>
           <Form.Item name="password" rules={[{ required: true, message: "请输入密码" }]}>
-            <Input.Password prefix={<LockOutlined />} placeholder="密码" />
+            <Input.Password autoComplete="off" prefix={<LockOutlined />} placeholder="密码" />
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit" loading={loading} block>
@@ -108,12 +108,13 @@ export default function LoginPage() {
       key: "email",
       label: "验证码登录",
       children: (
-        <Form form={codeLoginForm} layout="vertical" onFinish={handleCodeLogin} size="middle">
+        <Form form={codeLoginForm} layout="vertical" onFinish={handleCodeLogin} size="middle" autoComplete="off">
           <Form.Item name="email" rules={[{ required: true, type: "email", message: "请输入有效邮箱" }]}>
-            <Input prefix={<MailOutlined />} placeholder="邮箱" disabled={!smtpEnabled} />
+            <Input autoComplete="off" prefix={<MailOutlined />} placeholder="邮箱" disabled={!smtpEnabled} />
           </Form.Item>
           <Form.Item name="code" rules={[{ required: true, len: 6, message: "请输入6位验证码" }]}>
             <Input
+              autoComplete="off"
               placeholder="验证码"
               maxLength={6}
               disabled={!smtpEnabled}
@@ -146,9 +147,9 @@ export default function LoginPage() {
   ];
 
   const registerForm = (
-    <Form layout="vertical" onFinish={handleRegister} size="middle">
+    <Form layout="vertical" onFinish={handleRegister} size="middle" autoComplete="off">
       <Form.Item name="email" rules={[{ required: true, type: "email", message: "请输入有效邮箱" }]}>
-        <Input prefix={<MailOutlined />} placeholder="邮箱" />
+        <Input autoComplete="off" prefix={<MailOutlined />} placeholder="邮箱" />
       </Form.Item>
       <Form.Item
         name="password"
@@ -157,7 +158,7 @@ export default function LoginPage() {
           { pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, message: "须包含大小写字母和数字" },
         ]}
       >
-        <Input.Password prefix={<LockOutlined />} placeholder="密码" />
+        <Input.Password autoComplete="off" prefix={<LockOutlined />} placeholder="密码" />
       </Form.Item>
       <Form.Item
         name="confirm_password"
@@ -172,7 +173,7 @@ export default function LoginPage() {
           }),
         ]}
       >
-        <Input.Password prefix={<LockOutlined />} placeholder="确认密码" />
+        <Input.Password autoComplete="off" prefix={<LockOutlined />} placeholder="确认密码" />
       </Form.Item>
       <Form.Item>
         <Button type="primary" htmlType="submit" loading={loading} block>

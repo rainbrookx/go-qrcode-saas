@@ -297,6 +297,7 @@ export default function FormBuilder({ value = [], onChange }: Props) {
                 <label style={{ fontSize: 13 }}>标签</label>
                 <Input
                   size="small"
+                  autoComplete="off"
                   value={selected.label}
                   onChange={(e) => updateField(selectedIdx!, { label: e.target.value })}
                   placeholder="字段标签"
@@ -315,6 +316,7 @@ export default function FormBuilder({ value = [], onChange }: Props) {
                   <label style={{ fontSize: 13 }}>选项（逗号分隔）</label>
                   <Input
                     size="small"
+                    autoComplete="off"
                     value={(selected.props.options as string[])?.join(",") || ""}
                     onChange={(e) =>
                       updateField(selectedIdx!, {
