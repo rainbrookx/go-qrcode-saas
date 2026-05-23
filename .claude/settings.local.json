@@ -5,7 +5,9 @@
       "Bash(pnpm build *)",
       "Bash(gofmt *)",
       "Bash(go vet *)",
-      "Bash(go test *)"
+      "Bash(go test *)",
+      "WebFetch(domain:xrender.fun)",
+      "WebFetch(domain:www.npmjs.com)"
     ]
   }
 }
