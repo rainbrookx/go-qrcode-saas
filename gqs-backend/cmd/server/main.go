@@ -178,6 +178,9 @@ func main() {
 	// Upload routes (protected)
 	api.POST("/upload", middleware.Auth(cfg.JWTSecret), uploadHandler.Upload)
 
+	// File proxy routes
+	api.GET("/files/*key", uploadHandler.ServeFile)
+
 	// Public article and form routes
 	api.GET("/public/article/:code", publicArticleHandler.GetArticle)
 	api.GET("/public/form/:code", publicFormHandler.GetForm)

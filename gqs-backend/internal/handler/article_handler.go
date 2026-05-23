@@ -156,7 +156,7 @@ func (h *ArticleHandler) Detail(c *gin.Context) {
 	atts, _ := h.ArticleAttachmentRepo.FindByArticleID(article.ID)
 	attsWithURL := make([]gin.H, len(atts))
 	for i, a := range atts {
-		url, _ := h.Minio.PresignedURL(c.Request.Context(), a.FileKey, time.Hour)
+		url := fmt.Sprintf("/api/v1/files/%s", a.FileKey)
 		attsWithURL[i] = gin.H{
 			"key":  a.FileKey,
 			"type": a.FileType,

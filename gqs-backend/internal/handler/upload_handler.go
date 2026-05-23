@@ -2,10 +2,11 @@ package handler
 
 import (
 	"context"
+	"fmt"
+	"io"
 	"net/http"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -15,6 +16,27 @@ import (
 
 type UploadHandler struct {
 	Minio *storage.MinIOClient
+}
+
+func (h *UploadHandler) ServeFile(c *gin.Context) {
+	objectKey := strings.TrimPrefix(c.Param("key"), "/")
+	if objectKey == "" || !strings.HasPrefix(objectKey, "uploads/") || strings.Contains(objectKey, "..") {
+		response.Error(c, http.StatusBadRequest, response.CodeGeneral, "文件路径不合法")
+		return
+	}
+
+	object, err := h.Minio.GetObject(c.Request.Context(), objectKey)
+	if err != nil {
+		response.Error(c, http.StatusNotFound, response.CodeGeneral, "文件不存在")
+		return
+	}
+	defer object.Close()
+
+	ext := strings.ToLower(filepath.Ext(objectKey))
+	c.Header("Content-Type", mimeTypeByExt(ext))
+	c.Header("Cache-Control", "public, max-age=3600")
+	c.Status(http.StatusOK)
+	_, _ = io.Copy(c.Writer, object)
 }
 
 func (h *UploadHandler) Upload(c *gin.Context) {
@@ -56,17 +78,34 @@ func (h *UploadHandler) Upload(c *gin.Context) {
 		return
 	}
 
-	presignedURL, err := h.Minio.PresignedURL(ctx, objectKey, time.Hour)
-	if err != nil || presignedURL == "" {
-		response.Error(c, http.StatusInternalServerError, response.CodeUploadFail, "图片访问地址生成失败")
-		return
-	}
-
 	response.Created(c, gin.H{
 		"key":  objectKey,
 		"name": header.Filename,
 		"size": header.Size,
 		"type": fileType,
-		"url":  presignedURL,
+		"url":  fmt.Sprintf("/api/v1/files/%s", objectKey),
 	})
+}
+
+func mimeTypeByExt(ext string) string {
+	switch ext {
+	case ".jpg", ".jpeg":
+		return "image/jpeg"
+	case ".png":
+		return "image/png"
+	case ".gif":
+		return "image/gif"
+	case ".webp":
+		return "image/webp"
+	case ".svg":
+		return "image/svg+xml"
+	case ".mp4":
+		return "video/mp4"
+	case ".mp3":
+		return "audio/mpeg"
+	case ".pdf":
+		return "application/pdf"
+	default:
+		return "application/octet-stream"
+	}
 }

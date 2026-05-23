@@ -3,6 +3,7 @@ package storage
 import (
 	"context"
 	"fmt"
+	"io"
 	"log/slog"
 	"path/filepath"
 	"strings"
@@ -57,7 +58,10 @@ func (m *MinIOClient) PresignedURL(ctx context.Context, objectKey string, expiry
 	return url.String(), nil
 }
 
-// ioReader interface to avoid importing "io"
+func (m *MinIOClient) GetObject(ctx context.Context, objectKey string) (io.ReadCloser, error) {
+	return m.Client.GetObject(ctx, m.Bucket, objectKey, minio.GetObjectOptions{})
+}
+
 type ioReader interface {
 	Read(p []byte) (n int, err error)
 }
