@@ -183,7 +183,7 @@ export default function LoginPage() {
   );
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#f5f5f5]">
+    <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
       <Card style={{ width: 400, borderRadius: 8, boxShadow: "0 1px 2px 0 rgba(0,0,0,0.03), 0 1px 6px -1px rgba(0,0,0,0.02)" }}>
         <div className="text-center mb-6">
           <h2 style={{ fontSize: 20, fontWeight: 600, color: "#141414", marginBottom: 4 }}>QR Code SaaS</h2>

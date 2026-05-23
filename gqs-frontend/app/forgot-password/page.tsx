@@ -49,7 +49,7 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#f5f5f5]">
+    <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
       <Card style={{ width: 400, borderRadius: 8 }}>
         <h2 style={{ fontSize: 20, fontWeight: 600, color: "#141414", textAlign: "center", marginBottom: 24 }}>
           找回密码
