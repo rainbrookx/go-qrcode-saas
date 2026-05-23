@@ -24,7 +24,7 @@ import {
   HighlightOutlined,
   UploadOutlined,
 } from "@ant-design/icons";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import api from "@/lib/api";
 
 const ToolbarButton = ({
@@ -59,6 +59,7 @@ export default function ArticleEditor({
   const [imageModalOpen, setImageModalOpen] = useState(false);
   const [linkUrl, setLinkUrl] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const linkSelectionRef = useRef<{ from: number; to: number } | null>(null);
 
   const editor = useEditor({
     content: content || "",
@@ -77,17 +78,49 @@ export default function ArticleEditor({
   });
 
   const addLink = useCallback(() => {
-    setLinkUrl(editor?.getAttributes("link").href || "");
+    if (!editor) return;
+
+    linkSelectionRef.current = {
+      from: editor.state.selection.from,
+      to: editor.state.selection.to,
+    };
+    setLinkUrl(editor.getAttributes("link").href || "");
     setLinkModalOpen(true);
   }, [editor]);
 
-  const confirmLink = useCallback(() => {
-    if (linkUrl.trim() && editor) {
-      editor.chain().focus().setLink({ href: linkUrl.trim() }).run();
-    }
+  const closeLinkModal = useCallback(() => {
     setLinkModalOpen(false);
     setLinkUrl("");
-  }, [editor, linkUrl]);
+    linkSelectionRef.current = null;
+  }, []);
+
+  const confirmLink = useCallback(() => {
+    const selection = linkSelectionRef.current;
+    const url = linkUrl.trim();
+
+    if (url && editor && selection) {
+      editor
+        .chain()
+        .focus()
+        .setTextSelection(selection)
+        .setLink({ href: url })
+        .setTextSelection(selection.to)
+        .unsetMark("link")
+        .run();
+    }
+
+    closeLinkModal();
+  }, [closeLinkModal, editor, linkUrl]);
+
+  const removeLink = useCallback(() => {
+    const selection = linkSelectionRef.current;
+
+    if (editor && selection) {
+      editor.chain().focus().setTextSelection(selection).unsetLink().run();
+    }
+
+    closeLinkModal();
+  }, [closeLinkModal, editor]);
 
   const addImage = useCallback(() => {
     setImageUrl("");
@@ -231,7 +264,16 @@ export default function ArticleEditor({
         okText="确定"
         cancelText="取消"
         onOk={confirmLink}
-        onCancel={() => setLinkModalOpen(false)}
+        onCancel={closeLinkModal}
+        footer={(_, { OkBtn, CancelBtn }) => (
+          <>
+            <Button danger onClick={removeLink} disabled={!linkUrl}>
+              移除链接
+            </Button>
+            <CancelBtn />
+            <OkBtn />
+          </>
+        )}
       >
         <Input
           autoFocus
