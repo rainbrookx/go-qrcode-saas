@@ -8,7 +8,7 @@ import Placeholder from "@tiptap/extension-placeholder";
 import TextAlign from "@tiptap/extension-text-align";
 import Underline from "@tiptap/extension-underline";
 import Highlight from "@tiptap/extension-highlight";
-import { Button, Space, Upload, message } from "antd";
+import { Button, Input, Modal, Space, Upload, message } from "antd";
 import {
   BoldOutlined,
   ItalicOutlined,
@@ -24,7 +24,7 @@ import {
   HighlightOutlined,
   UploadOutlined,
 } from "@ant-design/icons";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import api from "@/lib/api";
 
 const ToolbarButton = ({
@@ -55,7 +55,13 @@ export default function ArticleEditor({
   content?: string;
   onChange?: (html: string) => void;
 }) {
+  const [linkModalOpen, setLinkModalOpen] = useState(false);
+  const [imageModalOpen, setImageModalOpen] = useState(false);
+  const [linkUrl, setLinkUrl] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
+
   const editor = useEditor({
+    content: content || "",
     extensions: [
       StarterKit,
       Image,
@@ -71,18 +77,30 @@ export default function ArticleEditor({
   });
 
   const addLink = useCallback(() => {
-    const url = window.prompt("输入链接地址:");
-    if (url && editor) {
-      editor.chain().focus().setLink({ href: url }).run();
-    }
+    setLinkUrl(editor?.getAttributes("link").href || "");
+    setLinkModalOpen(true);
   }, [editor]);
 
-  const addImage = useCallback(() => {
-    const url = window.prompt("输入图片 URL:");
-    if (url && editor) {
-      editor.chain().focus().setImage({ src: url }).run();
+  const confirmLink = useCallback(() => {
+    if (linkUrl.trim() && editor) {
+      editor.chain().focus().setLink({ href: linkUrl.trim() }).run();
     }
-  }, [editor]);
+    setLinkModalOpen(false);
+    setLinkUrl("");
+  }, [editor, linkUrl]);
+
+  const addImage = useCallback(() => {
+    setImageUrl("");
+    setImageModalOpen(true);
+  }, []);
+
+  const confirmImage = useCallback(() => {
+    if (imageUrl.trim() && editor) {
+      editor.chain().focus().setImage({ src: imageUrl.trim() }).run();
+    }
+    setImageModalOpen(false);
+    setImageUrl("");
+  }, [editor, imageUrl]);
 
   const handleFileUpload = useCallback(
     async (file: File) => {
@@ -207,6 +225,38 @@ export default function ArticleEditor({
       >
         <EditorContent editor={editor} />
       </div>
+      <Modal
+        title="插入链接"
+        open={linkModalOpen}
+        okText="确定"
+        cancelText="取消"
+        onOk={confirmLink}
+        onCancel={() => setLinkModalOpen(false)}
+      >
+        <Input
+          autoFocus
+          placeholder="请输入链接地址"
+          value={linkUrl}
+          onChange={(event) => setLinkUrl(event.target.value)}
+          onPressEnter={confirmLink}
+        />
+      </Modal>
+      <Modal
+        title="插入图片URL"
+        open={imageModalOpen}
+        okText="确定"
+        cancelText="取消"
+        onOk={confirmImage}
+        onCancel={() => setImageModalOpen(false)}
+      >
+        <Input
+          autoFocus
+          placeholder="请输入图片 URL"
+          value={imageUrl}
+          onChange={(event) => setImageUrl(event.target.value)}
+          onPressEnter={confirmImage}
+        />
+      </Modal>
     </div>
   );
 }
