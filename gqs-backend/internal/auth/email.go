@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"crypto/tls"
 	"fmt"
 	"log/slog"
 	"net/smtp"
@@ -34,5 +35,54 @@ func (m *Mailer) send(to, subject, body string) error {
 		m.From, to, subject, body)
 
 	slog.Info("sending email", "to", to, "subject", subject)
+
+	if m.Port == "465" {
+		return m.sendWithTLS(addr, auth, m.From, []string{to}, []byte(msg))
+	}
 	return smtp.SendMail(addr, auth, m.From, []string{to}, []byte(msg))
+}
+
+func (m *Mailer) sendWithTLS(addr string, auth smtp.Auth, from string, to []string, msg []byte) error {
+	tlsConfig := &tls.Config{ServerName: m.Host}
+
+	conn, err := tls.Dial("tcp", addr, tlsConfig)
+	if err != nil {
+		return fmt.Errorf("TLS连接失败: %w", err)
+	}
+	defer conn.Close()
+
+	client, err := smtp.NewClient(conn, m.Host)
+	if err != nil {
+		return fmt.Errorf("SMTP客户端创建失败: %w", err)
+	}
+	defer client.Quit()
+
+	if auth != nil {
+		if err = client.Auth(auth); err != nil {
+			return fmt.Errorf("SMTP认证失败: %w", err)
+		}
+	}
+
+	if err = client.Mail(from); err != nil {
+		return fmt.Errorf("MAIL FROM失败: %w", err)
+	}
+	for _, addr := range to {
+		if err = client.Rcpt(addr); err != nil {
+			return fmt.Errorf("RCPT TO失败: %w", err)
+		}
+	}
+
+	w, err := client.Data()
+	if err != nil {
+		return fmt.Errorf("DATA失败: %w", err)
+	}
+	_, err = w.Write(msg)
+	if err != nil {
+		return fmt.Errorf("写入失败: %w", err)
+	}
+	if err = w.Close(); err != nil {
+		return fmt.Errorf("关闭失败: %w", err)
+	}
+
+	return nil
 }

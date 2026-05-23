@@ -17,6 +17,7 @@ export default function LoginPage() {
   const login = useAuthStore((s) => s.login);
   const loginWithCode = useAuthStore((s) => s.loginWithCode);
   const register = useAuthStore((s) => s.register);
+  const [codeLoginForm] = Form.useForm();
 
   const handleRegister = async (values: { email: string; password: string; confirm_password: string }) => {
     setLoading(true);
@@ -100,7 +101,7 @@ export default function LoginPage() {
       key: "email",
       label: "验证码登录",
       children: (
-        <Form layout="vertical" onFinish={handleCodeLogin} size="middle">
+        <Form form={codeLoginForm} layout="vertical" onFinish={handleCodeLogin} size="middle">
           <Form.Item name="email" rules={[{ required: true, type: "email", message: "请输入有效邮箱" }]}>
             <Input prefix={<MailOutlined />} placeholder="邮箱" />
           </Form.Item>
@@ -114,7 +115,7 @@ export default function LoginPage() {
                   size="small"
                   disabled={codeSent}
                   onClick={() => {
-                    const email = (document.querySelector('input[placeholder="邮箱"]') as HTMLInputElement)?.value;
+                    const email = codeLoginForm.getFieldValue("email");
                     if (email) handleSendCode(email);
                     else message.warning("请先输入邮箱");
                   }}
