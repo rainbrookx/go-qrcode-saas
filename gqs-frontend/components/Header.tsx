@@ -54,17 +54,24 @@ export default function Header() {
           QR Code SaaS
         </a>
         <nav style={{ display: "flex", gap: 2 }}>
-          {tabs.map((tab) => (
-            <Button
-              key={tab.key}
-              type={pathname === tab.key ? "primary" : "text"}
-              size="small"
-              onClick={() => router.push(tab.key)}
-              style={{ fontSize: 13 }}
-            >
-              {tab.label}
-            </Button>
-          ))}
+          {tabs.map((tab) => {
+            const active = pathname === tab.key;
+            return (
+              <Button
+                key={tab.key}
+                type="text"
+                size="small"
+                onClick={() => router.push(tab.key)}
+                style={{
+                  fontSize: 13,
+                  color: active ? "#fff" : undefined,
+                  background: active ? "#1677FF" : undefined,
+                }}
+              >
+                {tab.label}
+              </Button>
+            );
+          })}
         </nav>
       </div>
 
