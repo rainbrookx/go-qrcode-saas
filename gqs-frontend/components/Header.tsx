@@ -12,6 +12,7 @@ const tabs = [
   { key: "/article", label: "文章" },
   { key: "/form", label: "表单" },
   { key: "/deqr", label: "解码" },
+  { key: "/about", label: "关于" },
 ];
 
 export default function Header() {
