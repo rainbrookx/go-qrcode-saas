@@ -38,10 +38,10 @@ export default function QRPreview({ value, size = 200, showActions = true, copyT
   return (
     <Card
       variant="outlined"
-      style={{ borderRadius: 8, textAlign: "center" }}
-      styles={{ body: { padding: 24 } }}
+      style={{ borderRadius: 8 }}
+      styles={{ body: { padding: 24, display: "flex", flexDirection: "column", alignItems: "center" } }}
     >
-      <div ref={canvasRef} style={{ display: "inline-block" }}>
+      <div ref={canvasRef}>
         <QRCodeCanvas value={value} size={size} level="M" includeMargin />
       </div>
       {showActions && (

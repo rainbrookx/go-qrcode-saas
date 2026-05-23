@@ -102,17 +102,11 @@ export default function ArticlePage() {
       {result && (
         <div style={{ marginTop: 32 }}>
           <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 16, color: "#141414" }}>文章已发布</h3>
-          <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
-            <div>
-              <QRPreview value={result.short_url} copyText={result.short_url} />
-            </div>
-            <div>
-              <p style={{ color: "#434343", fontSize: 14 }}>
-                短链接：<strong style={{ color: "#1677FF" }}>{result.short_url}</strong>
-              </p>
-              <p style={{ color: "#8c8c8c", fontSize: 13 }}>扫描二维码或分享链接即可查看文章</p>
-            </div>
-          </div>
+          <QRPreview value={result.short_url} copyText={result.short_url} />
+          <p style={{ marginTop: 12, fontSize: 14, color: "#434343", textAlign: "center" }}>
+            短链接：<strong style={{ color: "#1677FF" }}>{result.short_url}</strong>
+          </p>
+          <p style={{ color: "#8c8c8c", fontSize: 13, textAlign: "center" }}>扫描二维码或分享链接即可查看文章</p>
         </div>
       )}
     </div>

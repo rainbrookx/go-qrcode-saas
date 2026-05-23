@@ -27,7 +27,7 @@ export default function TextPage() {
           block
           disabled={!text.trim()}
           onClick={() => setQrValue(text)}
-          style={{ marginTop: 12, minHeight: 32 }}
+          style={{ marginTop: 30, minHeight: 32 }}
         >
           生成二维码
         </Button>
