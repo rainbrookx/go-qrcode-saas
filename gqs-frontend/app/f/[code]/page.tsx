@@ -56,8 +56,8 @@ export default function PublicFormPage({ params }: { params: Promise<{ code: str
     }
   };
 
-  if (loading) return <div style={{ textAlign: "center", padding: 100 }}><Spin size="large" /></div>;
-  if (error) return <div style={{ textAlign: "center", padding: 100, color: "#8c8c8c", fontSize: 16 }}>{error}</div>;
+  if (loading) return <div style={{ textAlign: "center", padding: "48px 16px" }}><Spin size="large" /></div>;
+  if (error) return <div style={{ textAlign: "center", padding: "48px 16px", color: "#8c8c8c", fontSize: 16 }}>{error}</div>;
   if (!data) return null;
 
   return (
@@ -100,9 +100,9 @@ function renderField(field: FieldConfig) {
     case "textarea":
       return <Input.TextArea autoComplete="off" rows={4} maxLength={(p.max_length as number) || 500} placeholder={(p.placeholder as string) || ""} />;
     case "radio":
-      return <Radio.Group options={(p.options as string[])?.map((o) => ({ label: o, value: o })) || []} />;
+      return <Radio.Group options={(p.options as string[])?.map((o) => ({ label: o, value: o })) || []} style={{ flexWrap: "wrap" }} />;
     case "checkbox":
-      return <Checkbox.Group options={(p.options as string[])?.map((o) => ({ label: o, value: o })) || []} />;
+      return <Checkbox.Group options={(p.options as string[])?.map((o) => ({ label: o, value: o })) || []} style={{ flexWrap: "wrap" }} />;
     case "select":
       return <Select options={(p.options as string[])?.map((o) => ({ label: o, value: o })) || []} placeholder="请选择" />;
     case "date":
@@ -110,11 +110,15 @@ function renderField(field: FieldConfig) {
     case "file":
       return (
         <Upload beforeUpload={() => false} maxCount={1}>
-          <Button icon={<UploadOutlined />}>上传文件</Button>
+          <Button icon={<UploadOutlined />} className="w-full md:w-auto">上传文件</Button>
         </Upload>
       );
     case "rating":
-      return <Rate count={(p.max as number) || 5} />;
+      return (
+        <div style={{ overflowX: "auto", paddingBottom: 4 }}>
+          <Rate count={(p.max as number) || 5} />
+        </div>
+      );
     default:
       return <Input />;
   }

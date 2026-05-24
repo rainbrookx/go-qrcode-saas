@@ -101,17 +101,19 @@ export default function AttachmentUpload({ value = [], onChange }: Props) {
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
+                gap: 8,
                 padding: "4px 8px",
                 background: "#f5f5f5",
                 borderRadius: 4,
                 marginBottom: 4,
                 fontSize: 13,
+                minWidth: 0,
               }}
             >
-              <span>
+              <span className="min-w-0 flex-1 break-all">
                 [{att.type}] {att.name} ({(att.size / 1024 / 1024).toFixed(1)} MB)
               </span>
-              <a onClick={() => handleRemove(att.key)} style={{ color: "#ff4d4f" }}>删除</a>
+              <a onClick={() => handleRemove(att.key)} style={{ color: "#ff4d4f", flexShrink: 0 }}>删除</a>
             </div>
           ))}
         </div>

@@ -2,7 +2,7 @@
 
 import { useRef, useCallback } from "react";
 import { QRCodeCanvas } from "qrcode.react";
-import { Button, Card, Space, message } from "antd";
+import { Button, Card, Grid, message } from "antd";
 import { CopyOutlined, DownloadOutlined } from "@ant-design/icons";
 
 interface Props {
@@ -14,6 +14,8 @@ interface Props {
 
 export default function QRPreview({ value, size = 200, showActions = true, copyText }: Props) {
   const canvasRef = useRef<HTMLDivElement>(null);
+  const screens = Grid.useBreakpoint();
+  const actualSize = screens.md ? size : Math.min(size, 160);
 
   const handleDownload = useCallback(() => {
     const canvas = canvasRef.current?.querySelector("canvas") as HTMLCanvasElement | null;
@@ -39,22 +41,31 @@ export default function QRPreview({ value, size = 200, showActions = true, copyT
     <Card
       variant="outlined"
       style={{ borderRadius: 8 }}
-      styles={{ body: { padding: 24, display: "flex", flexDirection: "column", alignItems: "center" } }}
+      styles={{
+        body: {
+          padding: screens.md ? 24 : 16,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+        },
+      }}
     >
       <div ref={canvasRef}>
-        <QRCodeCanvas value={value} size={size} level="M" includeMargin />
+        <QRCodeCanvas value={value} size={actualSize} level="M" includeMargin />
       </div>
       {showActions && (
-        <Space style={{ marginTop: 16 }}>
+        <div
+          className="mt-4 flex w-full flex-col gap-2 md:w-auto md:flex-row"
+        >
           {copyText && (
-            <Button icon={<CopyOutlined />} onClick={handleCopy}>
+            <Button icon={<CopyOutlined />} onClick={handleCopy} className="w-full md:w-auto">
               复制链接
             </Button>
           )}
-          <Button icon={<DownloadOutlined />} onClick={handleDownload}>
+          <Button icon={<DownloadOutlined />} onClick={handleDownload} className="w-full md:w-auto">
             下载 PNG
           </Button>
-        </Space>
+        </div>
       )}
     </Card>
   );

@@ -34,7 +34,7 @@ export default function UrldynEditPage() {
 
   if (loading) {
     return (
-      <div style={{ textAlign: "center", padding: 80 }}>
+      <div style={{ textAlign: "center", padding: "48px 16px" }}>
         <Spin size="large" />
       </div>
     );
@@ -46,8 +46,8 @@ export default function UrldynEditPage() {
   const shortUrl = (result?.short_url || data.short_url) as string;
 
   return (
-    <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
-      <div style={{ flex: "1 1 300px", minWidth: 280 }}>
+    <div className="flex flex-col gap-4 md:flex-row md:gap-6">
+      <div className="w-full min-w-0 flex-1">
         <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 16, color: "#141414" }}>
           编辑网址跳转码
         </h3>
@@ -58,7 +58,7 @@ export default function UrldynEditPage() {
           onCreated={(d) => setResult(d as unknown as Record<string, unknown>)}
         />
       </div>
-      <div style={{ flex: "1 1 300px", minWidth: 280 }}>
+      <div className="w-full min-w-0 flex-1">
         <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 16, color: "#141414" }}>预览</h3>
         <QRPreview value={shortUrl} copyText={shortUrl} />
       </div>

@@ -162,19 +162,19 @@ export default function CodeList() {
 
   return (
     <div>
-      <div style={{ display: "flex", gap: 12, marginBottom: 16, flexWrap: "wrap" }}>
+      <div className="mb-4 flex flex-col gap-3 md:flex-row md:flex-wrap md:items-center">
         <Input
           prefix={<SearchOutlined />}
           placeholder="搜索标题/URL"
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
           onPressEnter={triggerSearch}
-          style={{ width: 240 }}
+          className="w-full md:w-[240px]"
         />
         <Select
           placeholder="类型筛选"
           allowClear
-          style={{ width: 140 }}
+          className="w-full md:w-[140px]"
           value={typeFilter}
           onChange={(v) => { setTypeFilter(v); setPage(1); }}
           options={[
@@ -186,6 +186,7 @@ export default function CodeList() {
         <Button
           type="primary"
           onClick={triggerSearch}
+          className="w-full md:w-auto"
         >
           搜索
         </Button>
@@ -194,7 +195,7 @@ export default function CodeList() {
             title={`确定删除选中的 ${selectedRowKeys.length} 个活码？此操作不可恢复。`}
             onConfirm={handleBatchDelete}
           >
-            <Button danger icon={<DeleteOutlined />}>
+            <Button danger icon={<DeleteOutlined />} className="w-full md:w-auto">
               批量删除 ({selectedRowKeys.length})
             </Button>
           </Popconfirm>
@@ -211,6 +212,7 @@ export default function CodeList() {
         loading={loading}
         size="middle"
         bordered
+        scroll={{ x: 900 }}
         pagination={{
           current: page,
           total,
@@ -218,6 +220,8 @@ export default function CodeList() {
           onChange: setPage,
           showSizeChanger: false,
           showTotal: (t) => `共 ${t} 条`,
+          responsive: true,
+          showLessItems: true,
         }}
         locale={{ emptyText: "还没有创建活码" }}
       />

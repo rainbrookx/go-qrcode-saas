@@ -131,7 +131,8 @@ func main() {
 	// Public auth routes
 	authGroup := api.Group("/auth")
 	{
-		authGroup.POST("/register", authHandler.Register)
+		// 禁用注册接口
+		// authGroup.POST("/register", authHandler.Register)
 		authGroup.POST("/login", authHandler.Login)
 		authGroup.POST("/verify-code", authHandler.SendVerifyCode)
 		authGroup.POST("/reset-password", authHandler.ResetPassword)

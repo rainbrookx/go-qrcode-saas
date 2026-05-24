@@ -83,11 +83,11 @@ export default function FormPage() {
       )}
       <h3 style={{ fontSize: 16, fontWeight: 600, marginBottom: 24, color: "#141414" }}>创建表单</h3>
 
-      <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
-        <div style={{ flex: "2 1 500px", minWidth: 300 }}>
+      <div className="flex flex-col gap-4 md:flex-row md:gap-6">
+        <div className="w-full min-w-0 md:flex-[2_1_500px]">
           <FormBuilder value={fields} onChange={setFields} />
         </div>
-        <div style={{ flex: "1 1 300px", minWidth: 260 }}>
+        <div className="w-full min-w-0 md:flex-[1_1_300px]">
           <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 12 }}>表单设置</h3>
           <Form form={form} layout="vertical" onFinish={handleSubmit} size="middle" initialValues={{ expires_in: 30 }} autoComplete="off">
             <Form.Item name="title" rules={[{ required: true, max: 200, message: "请输入表单标题" }]}>

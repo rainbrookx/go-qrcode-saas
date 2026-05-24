@@ -231,8 +231,8 @@ export default function FormBuilder({ value = [], onChange }: Props) {
   const activeField = activeId ? value.find((f) => f.id === activeId) : null;
 
   return (
-    <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-      <div style={{ flex: "1 1 280px", minWidth: 250 }}>
+    <div className="flex flex-col gap-4 md:flex-row">
+      <div className="w-full min-w-0 flex-1">
         <div style={{ marginBottom: 8, fontWeight: 500, fontSize: 14 }}>字段列表</div>
         <div style={{ minHeight: 200, border: "1px solid #d9d9d9", borderRadius: 8, padding: 8 }}>
           {value.length === 0 && (
@@ -271,14 +271,13 @@ export default function FormBuilder({ value = [], onChange }: Props) {
         </div>
       </div>
 
-      <div style={{ flex: "1 1 220px", minWidth: 200 }}>
+      <div className="w-full min-w-0 flex-1">
         <div style={{ marginBottom: 8, fontWeight: 500, fontSize: 14 }}>添加字段</div>
         <div style={{ border: "1px solid #d9d9d9", borderRadius: 8, padding: 8 }}>
-          <Space size={4} wrap>
+          <div className="grid grid-cols-2 gap-2 min-[480px]:grid-cols-4">
             {fieldTypes.map((ft) => (
               <Button
                 key={ft.value}
-                size="small"
                 icon={ft.icon}
                 onClick={() => addField(ft.value)}
                 disabled={value.length >= 50}
@@ -286,7 +285,7 @@ export default function FormBuilder({ value = [], onChange }: Props) {
                 {ft.label}
               </Button>
             ))}
-          </Space>
+          </div>
         </div>
 
         {selected && (
@@ -296,7 +295,6 @@ export default function FormBuilder({ value = [], onChange }: Props) {
               <div style={{ marginBottom: 12 }}>
                 <label style={{ fontSize: 13 }}>标签</label>
                 <Input
-                  size="small"
                   autoComplete="off"
                   value={selected.label}
                   onChange={(e) => updateField(selectedIdx!, { label: e.target.value })}
@@ -305,7 +303,6 @@ export default function FormBuilder({ value = [], onChange }: Props) {
               </div>
               <div style={{ marginBottom: 12 }}>
                 <Switch
-                  size="small"
                   checked={selected.required}
                   onChange={(v) => updateField(selectedIdx!, { required: v })}
                 />{" "}
@@ -315,7 +312,6 @@ export default function FormBuilder({ value = [], onChange }: Props) {
                 <div>
                   <label style={{ fontSize: 13 }}>选项（逗号分隔）</label>
                   <Input
-                    size="small"
                     autoComplete="off"
                     value={(selected.props.options as string[])?.join(",") || ""}
                     onChange={(e) =>
@@ -330,7 +326,6 @@ export default function FormBuilder({ value = [], onChange }: Props) {
                 <div>
                   <label style={{ fontSize: 13 }}>最大分值</label>
                   <InputNumber
-                    size="small"
                     min={3}
                     max={10}
                     value={(selected.props.max as number) || 5}
@@ -342,7 +337,6 @@ export default function FormBuilder({ value = [], onChange }: Props) {
                 <div>
                   <label style={{ fontSize: 13 }}>文件大小限制 (MB)</label>
                   <InputNumber
-                    size="small"
                     min={1}
                     max={10}
                     value={(selected.props.max_size as number) || 10}

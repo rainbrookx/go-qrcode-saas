@@ -77,7 +77,7 @@ export default function ArticleEditPage() {
 
   if (loading) {
     return (
-      <div style={{ textAlign: "center", padding: 80 }}>
+      <div style={{ textAlign: "center", padding: "48px 16px" }}>
         <Spin size="large" />
       </div>
     );
@@ -122,21 +122,16 @@ export default function ArticleEditPage() {
         </div>
 
         <div
-          style={{
-            marginTop: 16,
-            display: "flex",
-            gap: 16,
-            alignItems: "flex-end",
-            flexWrap: "wrap",
-          }}
+          className="mt-4 flex flex-col gap-3 md:flex-row md:items-end md:gap-4"
         >
-          <Form.Item name="expires_in" label="有效期" style={{ marginBottom: 0, minWidth: 180 }}>
+          <Form.Item name="expires_in" label="有效期" className="w-full md:w-[180px]" style={{ marginBottom: 0 }}>
             <Select options={expiryOptions} />
           </Form.Item>
           <Button
             type="primary"
             loading={saving}
             onClick={() => form.submit()}
+            className="w-full md:w-auto"
             style={{ minHeight: 32 }}
           >
             保存修改

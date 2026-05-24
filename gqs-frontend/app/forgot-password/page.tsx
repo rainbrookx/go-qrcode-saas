@@ -49,8 +49,8 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <Card style={{ width: 400, borderRadius: 8 }}>
+    <div className="w-full px-4" style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <Card style={{ width: "100%", maxWidth: 400, borderRadius: 8 }}>
         <h2 style={{ fontSize: 20, fontWeight: 600, color: "#141414", textAlign: "center", marginBottom: 24 }}>
           找回密码
         </h2>
@@ -78,7 +78,7 @@ export default function ForgotPasswordPage() {
           </Form>
         ) : (
           <Form layout="vertical" onFinish={handleReset} size="middle" autoComplete="off">
-            <div style={{ marginBottom: 12, fontSize: 14, color: "#8c8c8c", textAlign: "center" }}>
+            <div style={{ marginBottom: 12, fontSize: 14, color: "#8c8c8c", textAlign: "center", overflowWrap: "anywhere" }}>
               验证码已发送至 {email}
             </div>
             <Form.Item name="code" rules={[{ required: true, len: 6, message: "请输入6位验证码" }]}>

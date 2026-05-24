@@ -97,18 +97,12 @@ export default function ArticlePage() {
         </div>
 
         <div
-          style={{
-            marginTop: 16,
-            display: "flex",
-            gap: 16,
-            alignItems: "flex-end",
-            flexWrap: "wrap",
-          }}
+          className="mt-4 flex flex-col gap-3 md:flex-row md:items-end md:gap-4"
         >
-          <Form.Item name="expires_in" label="有效期" style={{ marginBottom: 0, minWidth: 180 }}>
+          <Form.Item name="expires_in" label="有效期" className="w-full md:w-[180px]" style={{ marginBottom: 0 }}>
             <Select options={expiryOptions} />
           </Form.Item>
-          <Button type="primary" loading={loading} onClick={() => form.submit()} style={{ minHeight: 32 }}>
+          <Button type="primary" loading={loading} onClick={() => form.submit()} className="w-full md:w-auto" style={{ minHeight: 32 }}>
             生成二维码并发布
           </Button>
         </div>

@@ -91,7 +91,7 @@ export default function FormEditPage() {
 
   if (loading) {
     return (
-      <div style={{ textAlign: "center", padding: 80 }}>
+      <div style={{ textAlign: "center", padding: "48px 16px" }}>
         <Spin size="large" />
       </div>
     );
@@ -104,26 +104,26 @@ export default function FormEditPage() {
   return (
     <div>
       <div
+        className="flex flex-wrap gap-3"
         style={{
-          display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
           marginBottom: 24,
         }}
       >
-        <h3 style={{ fontSize: 16, fontWeight: 600, color: "#141414", margin: 0 }}>
+        <h3 className="min-w-0" style={{ fontSize: 16, fontWeight: 600, color: "#141414", margin: 0, overflowWrap: "anywhere" }}>
           编辑表单 - {formTitle}
         </h3>
-        <Button onClick={() => router.push(`/form/${numId}/submissions`)}>
+        <Button onClick={() => router.push(`/form/${numId}/submissions`)} className="w-full md:w-auto">
           查看提交数据
         </Button>
       </div>
 
-      <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
-        <div style={{ flex: "2 1 500px", minWidth: 300 }}>
+      <div className="flex flex-col gap-4 md:flex-row md:gap-6">
+        <div className="w-full min-w-0 md:flex-[2_1_500px]">
           <FormBuilder key={numId} value={fields} onChange={setFields} />
         </div>
-        <div style={{ flex: "1 1 300px", minWidth: 260 }}>
+        <div className="w-full min-w-0 md:flex-[1_1_300px]">
           <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 12 }}>表单设置</h3>
           <Form form={form} layout="vertical" onFinish={handleSubmit} size="middle" autoComplete="off">
             <Form.Item

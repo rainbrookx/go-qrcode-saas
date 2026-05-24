@@ -44,7 +44,7 @@ const ToolbarButton = ({
     icon={icon}
     onClick={onClick}
     title={title}
-    style={{ minWidth: 28, height: 28 }}
+    style={{ minWidth: 36, height: 36 }}
   />
 );
 
@@ -275,16 +275,17 @@ export default function ArticleEditor({
       }}
     >
       <div
+        className="overflow-x-auto md:overflow-visible"
         style={{
           borderBottom: "1px solid #d9d9d9",
           padding: "8px 12px",
           background: "#fafafa",
           display: "flex",
-          flexWrap: "wrap",
+          flexWrap: "nowrap",
           gap: 2,
         }}
       >
-        <Space size={2} wrap>
+        <Space size={2} className="min-w-max">
           <ToolbarButton
             icon={<BoldOutlined />}
             active={editor.isActive("bold")}
@@ -340,7 +341,7 @@ export default function ArticleEditor({
           <ToolbarButton icon={<LinkOutlined />} onClick={addLink} title="插入链接" />
           <ToolbarButton icon={<PictureOutlined />} onClick={addImage} title="插入图片URL" />
           <Upload showUploadList={false} beforeUpload={handleFileUpload} accept="image/*">
-            <Button type="text" size="small" icon={<UploadOutlined />} title="上传图片" style={{ minWidth: 28, height: 28 }} />
+            <Button type="text" size="small" icon={<UploadOutlined />} title="上传图片" style={{ minWidth: 36, height: 36 }} />
           </Upload>
           <ToolbarButton
             icon={<HighlightOutlined />}
@@ -351,8 +352,8 @@ export default function ArticleEditor({
         </Space>
       </div>
       <div
+        className="h-[320px] md:h-[400px]"
         style={{
-          height: 400,
           overflowY: "auto",
           background: "#fff",
           padding: "8px 12px",
@@ -368,6 +369,7 @@ export default function ArticleEditor({
         open={linkModalOpen}
         okText="确定"
         cancelText="取消"
+        width="min(92vw, 520px)"
         onOk={confirmLink}
         onCancel={closeLinkModal}
         footer={(_, { OkBtn, CancelBtn }) => (
@@ -394,6 +396,7 @@ export default function ArticleEditor({
         open={imageModalOpen}
         okText="确定"
         cancelText="取消"
+        width="min(92vw, 520px)"
         onOk={confirmImage}
         onCancel={() => setImageModalOpen(false)}
       >

@@ -11,7 +11,10 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   }, [fetchMe]);
 
   return (
-    <main style={{ flex: 1, maxWidth: 960, width: "100%", margin: "0 auto", padding: "32px 24px" }}>
+    <main
+      className="px-4 py-6 md:px-6 md:py-8"
+      style={{ flex: 1, maxWidth: 960, width: "100%", margin: "0 auto" }}
+    >
       {children}
     </main>
   );

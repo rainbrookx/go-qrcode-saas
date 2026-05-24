@@ -47,7 +47,7 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div style={{ textAlign: "center", padding: 80 }}>
+      <div style={{ textAlign: "center", padding: "48px 16px" }}>
         <Spin size="large" />
       </div>
     );
@@ -87,7 +87,7 @@ export default function ProfilePage() {
             format={() => `${used} / ${total}`}
             strokeColor="#1677FF"
           />
-          <div style={{ display: "flex", gap: 16, marginTop: 8, fontSize: 12, color: "#8c8c8c" }}>
+          <div style={{ display: "flex", gap: 16, marginTop: 8, fontSize: 12, color: "#8c8c8c", flexWrap: "wrap" }}>
             <span>网址跳转: {breakdown.urldyn || 0}</span>
             <span>文章: {breakdown.article || 0}</span>
             <span>表单: {breakdown.form || 0}</span>

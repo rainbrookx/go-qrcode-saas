@@ -33,9 +33,33 @@ body {
   padding-left: 1.5em;
 }
 
-.tiptap img {
+.tiptap img,
+.tiptap video,
+.tiptap iframe {
   max-width: 100%;
   height: auto;
+}
+
+.tiptap {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* Responsive table wrapper for Ant Design tables */
+.ant-table-wrapper {
+  max-width: 100%;
+}
+
+/* Wrap radio/checkbox options on mobile */
+.ant-radio-group,
+.ant-checkbox-group {
+  flex-wrap: wrap;
+  gap: 4px 16px;
+}
+
+/* Ensure Ant Design Rate stars don't overflow */
+.ant-rate {
+  flex-wrap: wrap;
 }
 
 .tiptap a {

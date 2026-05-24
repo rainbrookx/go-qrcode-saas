@@ -38,8 +38,8 @@ export default function PublicArticlePage({ params }: { params: Promise<{ code: 
       .finally(() => setLoading(false));
   }, [code]);
 
-  if (loading) return <div style={{ textAlign: "center", padding: 100 }}><Spin size="large" /></div>;
-  if (error) return <div style={{ textAlign: "center", padding: 100, color: "#8c8c8c", fontSize: 16 }}>{error}</div>;
+  if (loading) return <div style={{ textAlign: "center", padding: "48px 16px" }}><Spin size="large" /></div>;
+  if (error) return <div style={{ textAlign: "center", padding: "48px 16px", color: "#8c8c8c", fontSize: 16 }}>{error}</div>;
   if (!data) return null;
 
   return (
@@ -48,7 +48,8 @@ export default function PublicArticlePage({ params }: { params: Promise<{ code: 
         {data.title}
       </Title>
       <div
-        style={{ fontSize: 14, lineHeight: 1.8, color: "#434343" }}
+        className="tiptap"
+        style={{ fontSize: 14, lineHeight: 1.8, color: "#434343", overflowWrap: "anywhere" }}
         dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(data.content) }}
       />
       {data.attachments.length > 0 && (
@@ -56,7 +57,7 @@ export default function PublicArticlePage({ params }: { params: Promise<{ code: 
           <h3 style={{ fontSize: 14, fontWeight: 600, marginBottom: 12 }}>附件</h3>
           {data.attachments.map((att, i) => (
             <div key={i} style={{ marginBottom: 8 }}>
-              <a href={att.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 13 }}>
+              <a href={att.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 13 }} className="break-all">
                 {typeIcons[att.type]} {att.name}
               </a>
             </div>

@@ -184,8 +184,8 @@ export default function LoginPage() {
   );
 
   return (
-    <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <Card style={{ width: 400, borderRadius: 8, boxShadow: "0 1px 2px 0 rgba(0,0,0,0.03), 0 1px 6px -1px rgba(0,0,0,0.02)" }}>
+    <div className="w-full px-4" style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <Card style={{ width: "100%", maxWidth: 400, borderRadius: 8, boxShadow: "0 1px 2px 0 rgba(0,0,0,0.03), 0 1px 6px -1px rgba(0,0,0,0.02)" }}>
         <div className="text-center mb-6">
           <h2 style={{ fontSize: 20, fontWeight: 600, color: "#141414", marginBottom: 4 }}>QR Code SaaS</h2>
           <p style={{ fontSize: 14, color: "#8c8c8c", margin: 0 }}>开源二维码工具</p>

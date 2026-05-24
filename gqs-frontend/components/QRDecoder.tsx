@@ -50,7 +50,7 @@ export default function QRDecoder() {
         showUploadList={false}
         beforeUpload={(file) => handleFile(file)}
         disabled={loading}
-        style={{ padding: 24 }}
+        className="p-4 md:p-6"
       >
         <p className="ant-upload-drag-icon">
           <InboxOutlined />
@@ -65,6 +65,7 @@ export default function QRDecoder() {
           <Button
             icon={<CopyOutlined />}
             onClick={handleCopy}
+            className="w-full md:w-auto"
             style={{ marginTop: 8 }}
           >
             复制结果

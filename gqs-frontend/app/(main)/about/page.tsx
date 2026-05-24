@@ -87,7 +87,7 @@ export default function AboutPage() {
           <GithubOutlined style={{ fontSize: 18 }} />
           <Text strong>GitHub</Text>
         </div>
-        <Link href="https://github.com/rainbrookx/go-qrcode-saas" target="_blank">
+        <Link href="https://github.com/rainbrookx/go-qrcode-saas" target="_blank" className="break-all">
           https://github.com/rainbrookx/go-qrcode-saas
         </Link>
         <Paragraph style={{ marginTop: 16, marginBottom: 0 }}>
@@ -102,6 +102,7 @@ export default function AboutPage() {
           dataSource={features}
           pagination={false}
           size="small"
+          scroll={{ x: 480 }}
         />
       </Card>
 
