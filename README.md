@@ -135,6 +135,12 @@ cd gqs-backend
 go build -o gqs-server ./cmd/server
 ```
 
+在 Windows 系统上使用 PowerShell 交叉编译
+
+```powershell
+$env:CGO_ENABLED="0"; $env:GOOS="linux"; $env:GOARCH="amd64"; go build -ldflags "-s -w" -trimpath -o gqs-server .\cmd\server\main.go
+```
+
 运行构建后的后端服务：
 
 ```bash
@@ -146,6 +152,13 @@ go build -o gqs-server ./cmd/server
 ```bash
 cd gqs-frontend
 pnpm build
+
+# 本地打包（先 build 后）
+cp -r .next/static .next/standalone/.next/static
+cp -r public .next/standalone/public
+
+# 压缩
+tar -czf gqs-frontend-deploy.tar.gz -C .next/standalone .
 ```
 
 运行生产模式前端：
